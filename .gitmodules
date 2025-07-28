@@ -1,0 +1,6 @@
+[submodule "main-app"]
+	path = main-app
+	url = ./main-app
+[submodule "marketing-app"]
+	path = marketing-app
+	url = ./marketing-app
