@@ -20,7 +20,7 @@
   background-color: var(--neutral-0);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-2xl);
-  padding: var(--space-6);
+  padding: var(--space-8);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -50,6 +50,15 @@
   font-size: var(--text-xl);
   font-weight: var(--font-semibold);
   color: var(--neutral-900);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--neutral-200);
 }
 
 .closeButton {

@@ -9,6 +9,7 @@ import { Button, Modal, SelectOption } from '@/components/ui';
 import MeasurementForm from '@/components/measurements/MeasurementForm';
 import MeasurementCard from '@/components/measurements/MeasurementCard';
 import styles from '@/styles/components/measurement-card.module.css';
+import modalStyles from '@/styles/components/modal.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -26,6 +27,8 @@ const MeasurementsPage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [editingMeasurement, setEditingMeasurement] =
         useState<Measurement | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(null);
 
     const { data: customers } = useFirestoreQuery<Customer>({
         path: 'customers',
@@ -95,14 +98,30 @@ const MeasurementsPage = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this measurement?')) {
-            try {
-                const measurementRef = doc(db, 'measurements', id);
-                await deleteDoc(measurementRef);
-            } catch (error) {
-                console.error('Error deleting measurement: ', error);
-            }
+        setMeasurementToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!measurementToDelete) return;
+        try {
+            const measurementRef = doc(db, 'measurements', measurementToDelete);
+            await deleteDoc(measurementRef);
+        } catch (error) {
+            console.error('Error deleting measurement: ', error);
+        } finally {
+            setIsDeleteModalOpen(false);
+            setMeasurementToDelete(null);
         }
+    };
+
+    const handleCopy = (measurement: Measurement) => {
+        setEditingMeasurement({
+            ...measurement,
+            id: '',
+            createdAt: undefined,
+        });
+        setIsModalOpen(true);
     };
 
     return (
@@ -153,6 +172,7 @@ const MeasurementsPage = () => {
                             measurement={measurement}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
+                            onCopy={handleCopy}
                         />
                     ))}
                 </div>
@@ -174,6 +194,28 @@ const MeasurementsPage = () => {
                     isSaving={isSaving}
                     defaultValues={editingMeasurement || undefined}
                 />
+            </Modal>
+
+            <Modal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                title="Confirm Deletion"
+            >
+                <p>
+                    Are you sure you want to delete this measurement? This action
+                    cannot be undone.
+                </p>
+                <div className={modalStyles.modalFooter}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsDeleteModalOpen(false)}
+                    >
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDelete}>
+                        Delete
+                    </Button>
+                </div>
             </Modal>
         </DashboardLayout>
     );

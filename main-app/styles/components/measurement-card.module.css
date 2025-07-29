@@ -84,6 +84,21 @@
   color: var(--neutral-800);
 }
 
+.measurementValue {
+  font-weight: var(--font-semibold);
+  color: var(--neutral-800);
+  font-size: var(--text-lg);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.unit {
+  font-size: var(--text-sm);
+  color: var(--neutral-500);
+  font-weight: var(--font-medium);
+}
+
 .cardFooter {
   margin-top: var(--space-4);
   padding-top: var(--space-4);

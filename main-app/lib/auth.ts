@@ -42,14 +42,20 @@ export const signupWithEmail = async (data: SignupData): Promise<AuthResult> => 
         }
 
         // Create user account
-        const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
+        const result = await createUserWithEmailAndPassword(
+            auth,
+            data.email,
+            data.password
+        );
 
         // Store user data in Firestore
         await setDoc(doc(db, 'users', result.user.uid), {
             name: data.name.trim(),
             email: data.email,
+            defaultUnit: 'in',
+            defaultCurrency: 'NGN',
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
         });
 
         const token = await result.user.getIdToken();
@@ -80,12 +86,18 @@ export const signInWithGoogle = async (): Promise<AuthResult> => {
         const result = await signInWithPopup(auth, provider);
 
         // Store/update user data in Firestore (for new users or updates)
-        await setDoc(doc(db, 'users', result.user.uid), {
-            name: result.user.displayName || '',
-            email: result.user.email || '',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-        }, { merge: true }); // Use merge to not overwrite existing data
+        await setDoc(
+            doc(db, 'users', result.user.uid),
+            {
+                name: result.user.displayName || '',
+                email: result.user.email || '',
+                defaultUnit: 'in',
+                defaultCurrency: 'NGN',
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+        );
 
         const token = await result.user.getIdToken();
         Cookies.set('session', token, { expires: 7 }); // Expires in 7 days

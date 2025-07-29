@@ -18,9 +18,9 @@ This document breaks down the tasks required to build the Seams & Status MVP, ba
 - [ ] Create a view to see a single customer's details and their measurement history.
 
 ### Measurement Features
-- [ ] Build the gender-specific measurement forms with all required fields, including one for the style/type of clothing.
-- [ ] Add numeric validation for measurement inputs.
-- [ ] Implement logic to save new measurement sets to Firestore, linked to a customer.
+- [x] Build the gender-specific measurement forms with all required fields, including one for the style/type of clothing.
+- [x] Add numeric validation for measurement inputs.
+- [x] Implement logic to save new measurement sets to Firestore, linked to a customer.
 - [ ] Implement functionality to copy a customer's past measurement set into a new one.
 
 ## Week 3: Order Creation & Payment Functionality

@@ -4,9 +4,7 @@ export interface Customer {
     name: string;
     contact: string;
     gender: 'female' | 'male' | 'other';
-    createdAt?: {
-        toDate: () => Date;
-    };
+    createdAt?: { toDate: () => Date };
 }
 
 export interface Measurement {
@@ -16,11 +14,18 @@ export interface Measurement {
     customerName?: string;
     garmentType: string;
     gender: 'men' | 'women';
+    unit: 'in' | 'cm';
     values: { [key: string]: number };
-    createdAt: {
-        toDate: () => Date;
-    };
-    updatedAt?: {
-        toDate: () => Date;
-    };
+    createdAt?: { toDate: () => Date };
+    updatedAt?: { toDate: () => Date };
+}
+
+export interface UserProfile {
+    uid: string;
+    name: string;
+    email: string;
+    defaultUnit: 'in' | 'cm';
+    defaultCurrency: string;
+    createdAt: { toDate: () => Date };
+    updatedAt: { toDate: () => Date };
 } 

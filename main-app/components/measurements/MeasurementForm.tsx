@@ -1,19 +1,20 @@
 'use client';
 
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import Select, { SelectOption } from '@/components/ui/Select';
+import { Button, Select, SelectOption } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import measurementStyles from '@/styles/components/measurement.module.css';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
+import { Customer, Measurement, UserProfile } from '@/lib/types';
+import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 
 interface MeasurementFormProps {
-    onSave: (data: any) => Promise<void>;
+    onSave: (data: Partial<Measurement>) => void;
     onClose: () => void;
     customers: SelectOption[];
     isSaving: boolean;
-    defaultValues?: any;
+    defaultValues?: Partial<Measurement>;
 }
 
 const measurementFields = {
@@ -42,6 +43,11 @@ const measurementFields = {
     ],
 };
 
+const unitOptions: SelectOption[] = [
+    { label: 'Inches (in)', value: 'in' },
+    { label: 'Centimeters (cm)', value: 'cm' },
+];
+
 const MeasurementForm = ({
     onSave,
     onClose,
@@ -50,23 +56,30 @@ const MeasurementForm = ({
     defaultValues,
 }: MeasurementFormProps) => {
     const { user } = useAuth();
+    const { data: userData } = useFirestoreQuery<UserProfile>({
+        path: 'users',
+        constraints: user
+            ? [{ type: 'where', field: '__name__', operator: '==', value: user.uid }]
+            : [],
+        listen: false,
+    });
+
+    const defaultUnit = userData?.[0]?.defaultUnit || 'in';
+
     const {
         register,
         handleSubmit,
         control,
         watch,
         reset,
-        formState: { errors },
-    } = useForm({
-        defaultValues: defaultValues
-            ? {
-                customerId: defaultValues.customerId,
-                garmentType: defaultValues.garmentType,
-                gender: defaultValues.gender,
-                ...defaultValues.values,
-            }
-            : {},
+        formState: { errors, isDirty },
+    } = useForm<Partial<Measurement>>({
+        defaultValues: {
+            ...defaultValues,
+            unit: defaultValues?.unit || defaultUnit,
+        },
     });
+
     const selectedGender = watch('gender');
 
     useEffect(() => {
@@ -76,27 +89,17 @@ const MeasurementForm = ({
                 garmentType: defaultValues.garmentType,
                 gender: defaultValues.gender,
                 ...defaultValues.values,
+                unit: defaultValues.unit || defaultUnit,
             });
         } else {
             reset({});
         }
-    }, [defaultValues, reset]);
+    }, [defaultValues, reset, defaultUnit]);
 
-    const onSubmit: SubmitHandler<any> = async (data) => {
-        if (!user) {
-            console.error('No user authenticated. Cannot save measurement.');
-            return;
-        }
-        // Structure the data as per our Firestore schema
-        const { customerId, gender, garmentType, ...values } = data;
-        const submissionData = {
-            customerId,
-            gender,
-            garmentType,
-            values,
-            userId: user.uid,
-        };
-        await onSave(submissionData);
+    const fields = selectedGender ? measurementFields[selectedGender] : [];
+
+    const onSubmit = (data: Partial<Measurement>) => {
+        onSave(data);
     };
 
     return (
@@ -124,15 +127,24 @@ const MeasurementForm = ({
             </div>
 
             <div className={styles.formGroup}>
-                <label className={styles.label}>Garment Type</label>
+                <label htmlFor="garmentType" className={styles.label}>
+                    Garment / Style Type
+                </label>
                 <input
-                    {...register('garmentType', { required: 'Garment type is required' })}
-                    className={`${styles.input} ${errors.garmentType ? styles.inputError : ''}`}
-                    placeholder="e.g., Agbada, Kaftan"
+                    id="garmentType"
+                    type="text"
+                    {...register('garmentType', {
+                        required: 'Garment type is required',
+                    })}
+                    className={`${styles.input} ${errors.garmentType ? styles.inputError : ''
+                        }`}
+                    placeholder="e.g., Agbada, Wedding Dress"
                     disabled={isSaving}
                 />
                 {errors.garmentType && (
-                    <p className={styles.errorMessage}>{errors.garmentType.message as string}</p>
+                    <p className={styles.errorMessage}>
+                        {errors.garmentType.message as string}
+                    </p>
                 )}
             </div>
 
@@ -161,29 +173,58 @@ const MeasurementForm = ({
 
             {selectedGender && (
                 <div className={measurementStyles.grid}>
-                    {measurementFields[selectedGender as 'men' | 'women'].map((field) => (
-                        <div className={styles.formGroup} key={field.name}>
-                            <label className={styles.label}>{field.label}</label>
+                    {fields.map(({ name, label }) => (
+                        <div className={styles.formGroup} key={name}>
+                            <label htmlFor={name} className={styles.label}>
+                                {label}
+                            </label>
                             <input
+                                id={name}
                                 type="number"
-                                step="0.1"
-                                {...register(field.name, {
+                                step="0.01"
+                                {...register(`values.${name}` as const, {
                                     valueAsNumber: true,
-                                    required: `${field.label} is required`,
+                                    required: `${label} is required`,
                                 })}
-                                className={`${styles.input} ${errors[field.name] ? styles.inputError : ''}`}
-                                placeholder="Inches"
+                                className={`${styles.input} ${errors.values?.[name as keyof NonNullable<Measurement['values']>]
+                                        ? styles.inputError
+                                        : ''
+                                    }`}
+                                placeholder="0.00"
                                 disabled={isSaving}
                             />
-                            {errors[field.name] && (
+                            {errors.values?.[name as keyof NonNullable<Measurement['values']>] && (
                                 <p className={styles.errorMessage}>
-                                    {errors[field.name]?.message as string}
+                                    {
+                                        errors.values[
+                                            name as keyof NonNullable<Measurement['values']>
+                                        ]?.message
+                                    }
                                 </p>
                             )}
                         </div>
                     ))}
                 </div>
             )}
+
+            <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                    <label htmlFor="unit" className={styles.label}>
+                        Measurement Unit
+                    </label>
+                    <Controller
+                        name="unit"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                options={unitOptions}
+                                value={field.value}
+                                onChange={(value) => field.onChange(value)}
+                            />
+                        )}
+                    />
+                </div>
+            </div>
 
             <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
                 <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>
