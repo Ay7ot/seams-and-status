@@ -3,12 +3,12 @@
 This document breaks down the tasks required to build the Seams & Status MVP, based on the PRD.
 
 ## Week 1: Project Setup & Core Infrastructure
-- [ ] Define final Firestore schema based on the draft in the PRD.
-- [ ] Set up a new Firebase project (including Authentication and Firestore).
-- [ ] Initialize the web application project (e.g., Next.js with TypeScript).
-- [ ] Create the basic application folder structure (e.g., `app`, `components`, `lib`, `hooks`).
-- [ ] Implement staff authentication (login form, session management).
-- [ ] Implement protected routes using Next.js middleware.
+- [x] Define final Firestore schema based on the draft in the PRD.
+- [x] Set up a new Firebase project (including Authentication and Firestore).
+- [x] Initialize the web application project (e.g., Next.js with TypeScript).
+- [x] Create the basic application folder structure (e.g., `app`, `components`, `lib`, `hooks`).
+- [x] Implement staff authentication (login form, session management).
+- [x] Implement protected routes using Next.js middleware.
 
 ## Week 2: Customer & Measurement Management
 ### Customer Features

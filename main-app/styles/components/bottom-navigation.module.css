@@ -1,0 +1,75 @@
+/* Modern Bottom Navigation for PWAs - Mobile Only */
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px; /* Standard mobile nav height */
+  background-color: var(--neutral-0);
+  border-top: 1px solid var(--neutral-200);
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch; /* Stretch items to fill height */
+  z-index: var(--z-sticky);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0 var(--space-2);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  color: var(--neutral-600);
+  text-decoration: none;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: var(--space-2) 0;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-fast);
+  flex: 1;
+  max-width: 80px; /* Prevent items from becoming too wide */
+  position: relative;
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+.navItem:hover {
+  background-color: var(--neutral-100);
+  color: var(--neutral-800);
+}
+
+.navItem.active {
+  color: var(--primary-600);
+  font-weight: var(--font-semibold);
+}
+
+/* Active indicator */
+.navItem.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  width: 24px;
+  height: 3px;
+  background-color: var(--primary-600);
+  border-radius: var(--radius-full);
+}
+
+.navIcon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--space-0-5);
+}
+
+.navLabel {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Hide on tablet and desktop */
+@media (min-width: 768px) {
+  .bottomNav {
+    display: none;
+  }
+}
