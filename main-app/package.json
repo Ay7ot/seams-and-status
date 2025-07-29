@@ -14,7 +14,8 @@
     "next": "15.4.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-feather": "^2.0.10"
+    "react-feather": "^2.0.10",
+    "react-hook-form": "^7.61.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

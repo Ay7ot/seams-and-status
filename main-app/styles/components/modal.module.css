@@ -1,0 +1,78 @@
+/* Modern Modal Component */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.modalOverlay.open {
+  opacity: 1;
+}
+
+.modalContent {
+  background-color: var(--neutral-0);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.25s ease;
+  position: relative;
+  margin: var(--space-4);
+}
+
+.modalOverlay.open .modalContent {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--neutral-200);
+  margin-bottom: var(--space-6);
+}
+
+.modalTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--neutral-900);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--neutral-500);
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  transition: var(--transition-fast);
+  line-height: 0;
+}
+
+.closeButton:hover {
+  background-color: var(--neutral-100);
+  color: var(--neutral-800);
+}
+
+@media (max-width: 640px) {
+  .modalContent {
+    max-height: 85vh;
+    margin-bottom: auto;
+    margin-top: auto;
+    border-radius: var(--radius-xl);
+  }
+}

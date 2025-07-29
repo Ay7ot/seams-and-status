@@ -36,7 +36,7 @@
 
 * **Authentication:** Staff login (email/password)
 * **Customer Profile:** name, contact; reuse past measurement sets
-* **Measurement Forms:** Gender-specific fields:
+* **Measurement Forms:** Gender-specific fields and a field for style/type of clothing:
 
   * *Women:* shoulder, bust, waist, hip, length, underbust length, underbust waist, bust span, sleeve, round sleeve
   * *Men:* shoulder, bust, waist, hip, length, sleeve, crotch length, lap
@@ -76,6 +76,7 @@
 ### 6.3 Measurement Capture
 
 * Gender-selected measurement form
+* Field to specify style/type of clothing for the measurement set (e.g., "Agbada")
 * Numeric validation (e.g. no negative values)
 
 ### 6.4 Order Lifecycle
@@ -158,14 +159,17 @@
 
 ```text
 customers/{customerId}:
+  userId: ref // Link to the staff user who created the customer
   name: string
   contact: string
   gender: "men" or "women"
   measurementHistory: [{ measurementId, date }]
 
 measurements/{measurementId}:
+  userId: ref // Link to the staff user who created the measurement
   customerId: ref
   gender: string
+  garmentType: string // e.g., "Agbada", "Kaftan"
   values: { shoulder, bust, waist, hip, ... }
   createdAt: timestamp
 

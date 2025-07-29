@@ -12,13 +12,13 @@ This document breaks down the tasks required to build the Seams & Status MVP, ba
 
 ## Week 2: Customer & Measurement Management
 ### Customer Features
-- [ ] Create the UI to display a list of all customers.
-- [ ] Build the form to add/edit a customer's profile (name, contact, gender).
-- [ ] Implement the backend logic to create, update, and read customer data from Firestore.
+- [x] Create the UI to display a list of all customers.
+- [x] Build the form to add/edit a customer's profile (name, contact, gender).
+- [x] Implement the backend logic to create, update, and read customer data from Firestore.
 - [ ] Create a view to see a single customer's details and their measurement history.
 
 ### Measurement Features
-- [ ] Build the gender-specific measurement forms (for Men and Women) with all required fields.
+- [ ] Build the gender-specific measurement forms with all required fields, including one for the style/type of clothing.
 - [ ] Add numeric validation for measurement inputs.
 - [ ] Implement logic to save new measurement sets to Firestore, linked to a customer.
 - [ ] Implement functionality to copy a customer's past measurement set into a new one.

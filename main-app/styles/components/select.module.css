@@ -1,0 +1,98 @@
+/* Modern Custom Select Component */
+.selectWrapper {
+  position: relative;
+  font-family: var(--font-family-sans);
+}
+
+.selectButton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-4);
+  border: 2px solid var(--neutral-200);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-base);
+  transition: var(--transition-all);
+  background-color: var(--neutral-0);
+  color: var(--neutral-900);
+  height: 48px;
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  text-align: left;
+}
+
+.selectButton:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 4px var(--primary-100);
+}
+
+.selectButton.error {
+  border-color: var(--error-500);
+}
+
+.selectButton.error:focus {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 4px var(--error-100);
+}
+
+.placeholder {
+  color: var(--neutral-400);
+  font-weight: var(--font-normal);
+}
+
+.arrowIcon {
+  color: var(--neutral-400);
+  transition: transform 0.2s ease;
+}
+
+.arrowIcon.open {
+  transform: rotate(180deg);
+}
+
+.optionsPanel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  background-color: var(--neutral-0);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-popover);
+  max-height: 220px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(-10px);
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.optionsPanel.open {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.option {
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  transition: background-color 0.15s ease;
+}
+
+.option:hover {
+  background-color: var(--neutral-50);
+}
+
+.option.selected {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: var(--font-semibold);
+}
+
+.option.focused {
+  background-color: var(--neutral-100);
+}

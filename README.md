@@ -162,3 +162,5 @@ payments/{paymentId}:
 
 ## 📄 License
 [MIT](https://choosealicense.com/licenses/mit/) 
+
+For more details, see the [PRD](./seams&status.md). 

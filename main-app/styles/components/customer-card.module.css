@@ -1,0 +1,170 @@
+/* Customer Card and List Styles */
+
+.customerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+.cardWrapper {
+  position: relative;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.customerCard {
+  background-color: var(--neutral-0);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  transition: all 0.2s ease-in-out;
+  border: 1px solid var(--neutral-200);
+  height: 100%;
+}
+
+.cardLink:hover .customerCard {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-200);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--neutral-0);
+  flex-shrink: 0;
+}
+
+.customerInfo {
+  flex-grow: 1;
+}
+
+.customerName {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--neutral-900);
+}
+
+.customerContact {
+  font-size: var(--text-sm);
+  color: var(--neutral-600);
+}
+
+.cardBody {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--neutral-100);
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.infoRow + .infoRow {
+  margin-top: var(--space-2);
+}
+
+.infoLabel {
+  color: var(--neutral-500);
+}
+
+.infoValue {
+  font-weight: var(--font-semibold);
+  color: var(--neutral-800);
+  text-transform: capitalize;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--neutral-100);
+}
+
+/* Actions Menu */
+.actionsWrapper {
+  position: relative;
+}
+
+.actionsButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  color: var(--neutral-500);
+  transition: background-color 0.15s ease;
+}
+
+.actionsButton:hover {
+  background-color: var(--neutral-100);
+}
+
+.actionsMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + var(--space-2));
+  background-color: var(--neutral-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-10);
+  width: 160px;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--neutral-200);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background-color: var(--neutral-100);
+}
+
+.menuItem.edit {
+  color: var(--neutral-700);
+}
+
+.menuItem.delete {
+  color: var(--error-600);
+}
+
+.cardActions {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 10;
+}

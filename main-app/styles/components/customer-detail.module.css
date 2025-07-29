@@ -1,0 +1,29 @@
+.detailHeader {
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.customerName {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  color: var(--neutral-900);
+  line-height: var(--leading-tight);
+}
+
+.customerContact {
+  font-size: var(--text-lg);
+  color: var(--neutral-600);
+  margin-top: var(--space-2);
+}
+
+.section {
+  margin-bottom: var(--space-10);
+}
+
+.sectionTitle {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--neutral-800);
+  margin-bottom: var(--space-6);
+}
