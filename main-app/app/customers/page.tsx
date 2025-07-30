@@ -219,7 +219,7 @@ const CustomersPage = () => {
                     <p>Error: {error.message}</p>
                     <p>
                         There was an issue fetching customer data. Please check your
-                        Firestore rules and ensure the 'customers' collection exists.
+                        Firestore rules and ensure the &apos;customers&apos; collection exists.
                     </p>
                 </div>
             )}

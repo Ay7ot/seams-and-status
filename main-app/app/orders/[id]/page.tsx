@@ -157,7 +157,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
         setIsSaving(true);
         try {
             const orderRef = doc(db, 'orders', order.id);
-            const updateData: { [key: string]: any } = { updatedAt: serverTimestamp() };
+            const updateData: Partial<Order> = { updatedAt: serverTimestamp() as Timestamp };
 
             if (data.fittingDate !== undefined) {
                 updateData.fittingDate = data.fittingDate ? Timestamp.fromDate(data.fittingDate) : null;
