@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button, DatePicker } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import { Order } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
 
 interface DateUpdateFormProps {
     order: Order;

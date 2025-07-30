@@ -1,13 +1,12 @@
 'use client';
 
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button, Select, SelectOption } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import measurementStyles from '@/styles/components/measurement.module.css';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
-import { Customer, Measurement, UserProfile } from '@/lib/types';
-import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
+import { Measurement } from '@/lib/types';
 
 interface MeasurementFormProps {
     onSave: (data: Partial<Measurement>) => void;
@@ -55,7 +54,7 @@ const MeasurementForm = ({
     isSaving,
     defaultValues,
 }: MeasurementFormProps) => {
-    const { user, userProfile } = useAuth();
+    const { userProfile } = useAuth();
 
     const defaultUnit = userProfile?.defaultUnit || 'in';
 
@@ -65,7 +64,7 @@ const MeasurementForm = ({
         control,
         watch,
         reset,
-        formState: { errors, isDirty },
+        formState: { errors },
     } = useForm<Partial<Measurement>>({
         defaultValues: {
             ...defaultValues,

@@ -23,7 +23,7 @@ import {
 import { Customer, Measurement } from '@/lib/types';
 
 const MeasurementsPage = () => {
-    const { user, userProfile } = useAuth();
+    const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editingMeasurement, setEditingMeasurement] =
@@ -83,7 +83,7 @@ const MeasurementsPage = () => {
         setEditingMeasurement(null);
     };
 
-    const handleSaveMeasurement = async (data: any) => {
+    const handleSaveMeasurement = async (data: Partial<Measurement>) => {
         setIsSaving(true);
         try {
             if (editingMeasurement) {

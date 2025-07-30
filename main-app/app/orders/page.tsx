@@ -8,7 +8,7 @@ import { Plus, Search } from 'react-feather';
 import { Button, Modal } from '@/components/ui';
 import OrderCard from '@/components/orders/OrderCard';
 import OrderForm from '@/components/orders/OrderForm';
-import { Order, Customer, UserProfile } from '@/lib/types';
+import { Order, Customer } from '@/lib/types';
 import styles from '@/styles/components/measurement-card.module.css'; // Re-using for grid layout
 import modalStyles from '@/styles/components/modal.module.css';
 import formStyles from '@/styles/components/auth.module.css'; // For search input

@@ -4,7 +4,7 @@ import { use, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { DashboardLayout } from '@/components/layout';
-import { Order, Customer, Measurement, Payment, UserProfile } from '@/lib/types';
+import { Order, Customer, Measurement, Payment } from '@/lib/types';
 import styles from '@/styles/components/order-detail.module.css';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Button, Modal } from '@/components/ui';
@@ -157,7 +157,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
         setIsSaving(true);
         try {
             const orderRef = doc(db, 'orders', order.id);
-            const updateData: any = { updatedAt: serverTimestamp() };
+            const updateData: { [key: string]: any } = { updatedAt: serverTimestamp() };
 
             if (data.fittingDate !== undefined) {
                 updateData.fittingDate = data.fittingDate ? Timestamp.fromDate(data.fittingDate) : null;

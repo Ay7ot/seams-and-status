@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import OrderCard from '@/components/orders/OrderCard';
-import { Order, Customer, UserProfile, Payment } from '@/lib/types';
-import gridStyles from '@/styles/components/measurement-card.module.css';
+import { Order, Customer, Payment } from '@/lib/types';
 import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { Button } from '@/components/ui';
-import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar, Zap } from 'react-feather';
+import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar } from 'react-feather';
 import { formatCurrency } from '@/lib/utils';
 
 const DashboardPage = () => {
@@ -85,7 +83,7 @@ const DashboardPage = () => {
     }, [orders, payments, customers]);
 
     // Get recent orders for quick view
-    const recentOrders = useMemo(() => {
+    useMemo(() => {
         if (!ordersWithCustomerNames) return [];
         return ordersWithCustomerNames
             .filter((order) => order.createdAt)
@@ -151,7 +149,7 @@ const DashboardPage = () => {
                         Welcome back, {userProfile?.name || 'Tailor'}
                     </h1>
                     <p className={dashboardStyles.welcomeSubtitle}>
-                        Here's what's happening with your business today.
+                        Here&apos;s what&apos;s happening with your business today.
                     </p>
                 </div>
                 <Button onClick={() => router.push('/orders')} size="large" className={dashboardStyles.primaryAction}>

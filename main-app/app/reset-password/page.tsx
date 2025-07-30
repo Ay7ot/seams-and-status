@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
             } else {
                 setErrors({ general: result.error });
             }
-        } catch (error) {
+        } catch {
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
         } finally {
             setLoading(false);
@@ -84,8 +84,8 @@ export default function ResetPasswordPage() {
                         <h1 className={styles.brandLogo}>Seams & Status</h1>
                         <p className={styles.brandTagline}>Professional Tailoring Management</p>
                         <p className={styles.brandDescription}>
-                            Don't worry, we'll help you get back into your account.
-                            Enter your email and we'll send you a reset link.
+                            Don&apos;t worry, we&apos;ll help you get back into your account.
+                            Enter your email and we&apos;ll send you a reset link.
                         </p>
                     </div>
                 </div>
@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
                             <p className={styles.tagline}>Professional tailoring management</p>
                             <h2 className={styles.title}>Reset your password</h2>
                             <p className={styles.subtitle}>
-                                Enter your email address and we'll send you a link to reset your password
+                                Enter your email address and we&apos;ll send you a link to reset your password
                             </p>
                         </div>
 
@@ -161,7 +161,7 @@ export default function ResetPasswordPage() {
                                 </Link>
                             </p>
                             <p style={{ marginTop: 'var(--space-2)' }}>
-                                Don't have an account?{' '}
+                                Don&apos;t have an account?{' '}
                                 <Link href="/signup" className={styles.authLink}>
                                     Sign up
                                 </Link>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button, DatePicker } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import { Payment } from '@/lib/types';

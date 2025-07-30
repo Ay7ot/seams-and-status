@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
         db = initializeFirestore(app, {
             localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
         });
-    } catch (e) {
+    } catch {
         // This can happen if the app is hot-reloaded, so we can ignore it.
         db = getFirestore(app);
     }

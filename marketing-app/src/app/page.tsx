@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import styles from '../styles/marketing.module.css'
-import Image from 'next/image';
 import {
   Menu,
   X,
@@ -17,7 +16,6 @@ import {
   Clipboard,
   DollarSign,
   CheckCircle,
-  Star,
   Facebook,
   Twitter,
   Instagram,

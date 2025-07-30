@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MoreVertical, Edit, Trash } from 'react-feather';
+import { MoreVertical } from 'react-feather';
 import styles from '@/styles/components/actions-menu.module.css';
 
 interface ActionItem {

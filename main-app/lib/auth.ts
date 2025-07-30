@@ -62,8 +62,8 @@ export const signupWithEmail = async (data: SignupData): Promise<AuthResult> => 
         Cookies.set('session', token, { expires: 7 }); // Expires in 7 days
 
         return { success: true, user: result.user };
-    } catch (error: any) {
-        return { success: false, error: getAuthErrorMessage(error) };
+    } catch (error) {
+        return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
 
@@ -74,8 +74,8 @@ export const loginWithEmail = async (data: LoginData): Promise<AuthResult> => {
         Cookies.set('session', token, { expires: 7 }); // Expires in 7 days
 
         return { success: true, user: result.user };
-    } catch (error: any) {
-        return { success: false, error: getAuthErrorMessage(error) };
+    } catch (error) {
+        return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
 
@@ -103,8 +103,8 @@ export const signInWithGoogle = async (): Promise<AuthResult> => {
         Cookies.set('session', token, { expires: 7 }); // Expires in 7 days
 
         return { success: true, user: result.user };
-    } catch (error: any) {
-        return { success: false, error: getAuthErrorMessage(error) };
+    } catch (error) {
+        return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
 
@@ -113,8 +113,8 @@ export const resetPassword = async (email: string): Promise<AuthResult> => {
     try {
         await sendPasswordResetEmail(auth, email);
         return { success: true };
-    } catch (error: any) {
-        return { success: false, error: getAuthErrorMessage(error) };
+    } catch (error) {
+        return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
 
@@ -124,8 +124,8 @@ export const logout = async (): Promise<AuthResult> => {
         await signOut(auth);
         Cookies.remove('session');
         return { success: true };
-    } catch (error: any) {
-        return { success: false, error: getAuthErrorMessage(error) };
+    } catch (error) {
+        return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
 

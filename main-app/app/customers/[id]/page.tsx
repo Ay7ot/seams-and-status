@@ -78,7 +78,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
     };
 
     const handleCopy = (measurement: Measurement) => {
-        const { id, createdAt, ...rest } = measurement;
+        const { ...rest } = measurement;
         setEditingMeasurement({
             ...rest,
             id: '',
@@ -103,7 +103,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
         }
     };
 
-    const handleSaveMeasurement = async (data: any) => {
+    const handleSaveMeasurement = async (data: Partial<Measurement>) => {
         if (!user) return;
         setIsSaving(true);
         try {

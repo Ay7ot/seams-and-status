@@ -17,6 +17,7 @@ import { logout } from '@/lib/auth';
 import BottomNavigation from './BottomNavigation'; // Import the new component
 import { ThemeToggle } from '@/components/ui';
 import styles from '@/styles/components/dashboard-layout.module.css';
+import { User } from 'firebase/auth';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -128,7 +129,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
     }, [isSidebarOpen]);
 
     // Get user initials for avatar
-    const getUserInitials = (user: any) => {
+    const getUserInitials = (user: User | null) => {
         if (user?.displayName) {
             return user.displayName
                 .split(' ')

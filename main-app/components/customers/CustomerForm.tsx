@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import Select, { SelectOption } from '@/components/ui/Select'; // Import custom Select
@@ -15,7 +15,7 @@ export interface CustomerFormData {
 }
 
 interface CustomerFormProps {
-    onSave: (data: any) => Promise<void>;
+    onSave: (data: CustomerFormData) => Promise<void>;
     onClose: () => void;
     defaultValues?: Customer;
     isSaving: boolean;

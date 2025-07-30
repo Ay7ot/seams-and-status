@@ -61,14 +61,14 @@ const SettingsPage = () => {
         { label: 'South African Rand (R)', value: 'ZAR' },
     ];
 
-    const handleSettingChange = (key: string, value: any) => {
+    const handleSettingChange = (key: string, value: string | 'in' | 'cm') => {
         setSettings(prev => ({ ...prev, [key]: value }));
         setHasChanges(true);
     };
 
     const handleSave = async () => {
         if (!user || !currentUser) return;
-        
+
         setIsSaving(true);
         try {
             const userRef = doc(db, 'users', user.uid);
@@ -111,15 +111,15 @@ const SettingsPage = () => {
                     Application Settings
                 </h1>
                 <div className={settingsStyles.buttonContainer}>
-                    <Button 
-                        variant="secondary" 
+                    <Button
+                        variant="secondary"
                         onClick={handleReset}
                         disabled={isSaving || !hasChanges}
                         className={settingsStyles.button}
                     >
                         Reset Changes
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleSave}
                         disabled={isSaving || !hasChanges}
                         className={settingsStyles.button}

@@ -92,7 +92,7 @@ export default function SignupPage() {
             } else {
                 setErrors({ general: result.error });
             }
-        } catch (error) {
+        } catch {
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
         } finally {
             setLoading(false);
@@ -111,7 +111,7 @@ export default function SignupPage() {
             } else {
                 setErrors({ general: result.error });
             }
-        } catch (error) {
+        } catch {
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
         } finally {
             setGoogleLoading(false);

@@ -23,7 +23,6 @@ const StatusUpdateForm = ({ onSave, onClose, isSaving, currentStatus }: StatusUp
     const {
         handleSubmit,
         control,
-        formState: { errors },
     } = useForm<Partial<Order>>({
         defaultValues: { status: currentStatus },
     });

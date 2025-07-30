@@ -73,7 +73,7 @@ export default function LoginPage() {
             } else {
                 setErrors({ general: result.error });
             }
-        } catch (error) {
+        } catch {
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
         } finally {
             setLoading(false);
@@ -92,7 +92,7 @@ export default function LoginPage() {
             } else {
                 setErrors({ general: result.error });
             }
-        } catch (error) {
+        } catch {
             setErrors({ general: 'An unexpected error occurred. Please try again.' });
         } finally {
             setGoogleLoading(false);
@@ -220,7 +220,7 @@ export default function LoginPage() {
 
                         <div className={styles.authFooter}>
                             <p>
-                                Don't have an account?{' '}
+                                Don&apos;t have an account?{' '}
                                 <Link href="/signup" className={styles.authLink}>
                                     Sign up
                                 </Link>

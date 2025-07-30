@@ -5,7 +5,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { Customer, Measurement, Order } from '@/lib/types';
-import { Button, Select, SelectOption, DatePicker } from '@/components/ui';
+import { Button, Select, DatePicker } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import formStyles from '@/styles/components/order-form.module.css';
 import { Timestamp } from 'firebase/firestore';
