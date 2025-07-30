@@ -55,16 +55,9 @@ const MeasurementForm = ({
     isSaving,
     defaultValues,
 }: MeasurementFormProps) => {
-    const { user } = useAuth();
-    const { data: userData } = useFirestoreQuery<UserProfile>({
-        path: 'users',
-        constraints: user
-            ? [{ type: 'where', field: '__name__', operator: '==', value: user.uid }]
-            : [],
-        listen: false,
-    });
+    const { user, userProfile } = useAuth();
 
-    const defaultUnit = userData?.[0]?.defaultUnit || 'in';
+    const defaultUnit = userProfile?.defaultUnit || 'in';
 
     const {
         register,
@@ -187,8 +180,8 @@ const MeasurementForm = ({
                                     required: `${label} is required`,
                                 })}
                                 className={`${styles.input} ${errors.values?.[name as keyof NonNullable<Measurement['values']>]
-                                        ? styles.inputError
-                                        : ''
+                                    ? styles.inputError
+                                    : ''
                                     }`}
                                 placeholder="0.00"
                                 disabled={isSaving}

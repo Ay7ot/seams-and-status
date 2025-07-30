@@ -4,12 +4,13 @@ import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus } from 'react-feather';
+import { Plus, Search } from 'react-feather';
 import { Button, Modal, SelectOption } from '@/components/ui';
 import MeasurementForm from '@/components/measurements/MeasurementForm';
 import MeasurementCard from '@/components/measurements/MeasurementCard';
 import styles from '@/styles/components/measurement-card.module.css';
 import modalStyles from '@/styles/components/modal.module.css';
+import formStyles from '@/styles/components/auth.module.css'; // For search input
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -22,13 +23,14 @@ import {
 import { Customer, Measurement } from '@/lib/types';
 
 const MeasurementsPage = () => {
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editingMeasurement, setEditingMeasurement] =
         useState<Measurement | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const { data: customers } = useFirestoreQuery<Customer>({
         path: 'customers',
@@ -50,6 +52,16 @@ const MeasurementsPage = () => {
             customerName: customerMap.get(m.customerId) || 'Unknown Customer',
         }));
     }, [measurements, customers]);
+
+    const filteredMeasurements = useMemo(() => {
+        if (!measurementsWithCustomerNames) return [];
+        return measurementsWithCustomerNames.filter(
+            (measurement) =>
+                measurement.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                measurement.garmentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                measurement.gender.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [measurementsWithCustomerNames, searchTerm]);
 
     const customerOptions: SelectOption[] = useMemo(() => {
         if (!customers) return [];
@@ -132,17 +144,31 @@ const MeasurementsPage = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: 'var(--space-6)',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-4)',
                 }}
             >
-                <h1
-                    style={{
-                        fontSize: 'var(--text-3xl)',
-                        fontWeight: 'var(--font-bold)',
-                    }}
-                >
-                    All Measurements
-                </h1>
-                <Button onClick={handleAddNew}>
+                <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                    <Search
+                        size={20}
+                        style={{
+                            position: 'absolute',
+                            left: 'var(--space-4)',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: 'var(--neutral-400)',
+                        }}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Search by customer, garment type, or gender..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className={formStyles.input}
+                        style={{ paddingLeft: 'var(--space-10)', width: '100%' }}
+                    />
+                </div>
+                <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
                     <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
                     Add Measurement
                 </Button>
@@ -164,9 +190,9 @@ const MeasurementsPage = () => {
                 </div>
             )}
 
-            {!loading && measurementsWithCustomerNames.length > 0 && (
+            {!loading && filteredMeasurements.length > 0 && (
                 <div className={styles.measurementGrid}>
-                    {measurementsWithCustomerNames.map((measurement) => (
+                    {filteredMeasurements.map((measurement) => (
                         <MeasurementCard
                             key={measurement.id}
                             measurement={measurement}
@@ -178,7 +204,32 @@ const MeasurementsPage = () => {
                 </div>
             )}
 
-            {/* ... Empty and error states ... */}
+            {!loading && (!measurementsWithCustomerNames || measurementsWithCustomerNames.length === 0 || filteredMeasurements.length === 0) && (
+                <div
+                    style={{
+                        textAlign: 'center',
+                        padding: 'var(--space-8)',
+                        backgroundColor: 'var(--neutral-0)',
+                        borderRadius: 'var(--radius-xl)',
+                    }}
+                >
+                    <h2
+                        style={{
+                            fontSize: 'var(--text-xl)',
+                            fontWeight: 'var(--font-semibold)',
+                            marginBottom: 'var(--space-4)',
+                        }}
+                    >
+                        {searchTerm ? 'No Measurements Found' : 'No Measurements Yet'}
+                    </h2>
+                    <p style={{ color: 'var(--neutral-600)' }}>
+                        {searchTerm
+                            ? 'Try adjusting your search terms.'
+                            : 'Add your first measurement to get started.'
+                        }
+                    </p>
+                </div>
+            )}
 
             <Modal
                 isOpen={isModalOpen}

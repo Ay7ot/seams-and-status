@@ -53,7 +53,7 @@
 
 .logo {
   font-family: var(--font-family-display);
-  font-size: var(--text-2xl);
+  font-size: var(--text-4xl);
   background: linear-gradient(
     135deg,
     var(--accent-purple) 0%,
@@ -135,6 +135,12 @@
   padding: var(--space-4);
   background-color: var(--neutral-0);
   margin-top: auto; /* Push to bottom */
+}
+
+.sidebarActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .logoutButton {
@@ -432,11 +438,11 @@
 /* Large desktop */
 @media (min-width: 1280px) {
   .sidebar {
-    width: 320px;
+    width: 280px;
   }
 
   .mainLayout {
-    margin-left: 320px;
+    margin-left: 280px;
   }
 
   .mainContent {

@@ -1,3 +1,5 @@
+import { QueryConstraint } from "firebase/firestore";
+
 export interface Customer {
     id: string;
     userId: string;
@@ -26,6 +28,47 @@ export interface UserProfile {
     email: string;
     defaultUnit: 'in' | 'cm';
     defaultCurrency: string;
+    businessAddress?: string;
+    businessPhone?: string;
+    businessEmail?: string;
     createdAt: { toDate: () => Date };
     updatedAt: { toDate: () => Date };
-} 
+}
+
+export interface Order {
+    id: string;
+    userId: string;
+    customerId: string;
+    customerName?: string;
+    measurementId: string;
+    measurementGarmentType?: string; // For display
+    style: string;
+    arrivalDate: { toDate: () => Date };
+    fittingDate: { toDate: () => Date } | null;
+    collectionDate: { toDate: () => Date } | null;
+    materialCost: number;
+    totalCost: number;
+    initialPayment: number;
+    status: 'New' | 'In Progress' | 'Ready for Fitting' | 'Completed';
+    collected: boolean;
+    createdAt: { toDate: () => Date };
+    updatedAt: { toDate: () => Date };
+}
+
+export interface Payment {
+    id: string;
+    userId: string;
+    orderId: string;
+    amount: number;
+    date: { toDate: () => Date };
+    note?: string | null;
+    createdAt: { toDate: () => Date };
+}
+
+export interface FirestoreQuery {
+    path: string;
+    constraints?: QueryConstraint[];
+    listen?: boolean;
+    enabled?: boolean;
+    documentId?: string;
+}

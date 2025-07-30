@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, type Firestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -21,7 +21,20 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
 const auth = getAuth(app);
-const db = getFirestore(app);
 const storage = getStorage(app);
+let db: Firestore;
+
+if (typeof window !== 'undefined') {
+    try {
+        db = initializeFirestore(app, {
+            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+        });
+    } catch (e) {
+        // This can happen if the app is hot-reloaded, so we can ignore it.
+        db = getFirestore(app);
+    }
+} else {
+    db = getFirestore(app);
+}
 
 export { app, auth, db, storage }; 

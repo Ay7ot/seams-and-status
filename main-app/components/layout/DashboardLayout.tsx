@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { logout } from '@/lib/auth';
 import BottomNavigation from './BottomNavigation'; // Import the new component
+import { ThemeToggle } from '@/components/ui';
 import styles from '@/styles/components/dashboard-layout.module.css';
 
 interface DashboardLayoutProps {
@@ -187,15 +188,18 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
                 </nav>
 
                 <div className={styles.sidebarFooter}>
-                    <button
-                        className={styles.logoutButton}
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                        aria-label="Sign out of your account"
-                    >
-                        <LogOut size={20} className={styles.navIcon} />
-                        <span>{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
-                    </button>
+                    <div className={styles.sidebarActions}>
+                        <ThemeToggle />
+                        <button
+                            className={styles.logoutButton}
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                            aria-label="Sign out of your account"
+                        >
+                            <LogOut size={20} className={styles.navIcon} />
+                            <span>{isLoggingOut ? 'Signing out...' : 'Sign Out'}</span>
+                        </button>
+                    </div>
                 </div>
             </aside>
 

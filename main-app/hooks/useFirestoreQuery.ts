@@ -17,6 +17,7 @@ import {
     WhereFilterOp,
     OrderByDirection,
 } from 'firebase/firestore';
+import { useAuth } from './useAuth';
 
 interface UseFirestoreQueryProps {
     path: string;
@@ -28,18 +29,37 @@ interface UseFirestoreQueryProps {
         direction?: OrderByDirection;
     }>;
     listen?: boolean;
+    requireAuth?: boolean; // New prop to control auth requirement
 }
 
 export const useFirestoreQuery = <T>({
     path,
     constraints = [],
     listen = false,
+    requireAuth = true, // Default to requiring auth
 }: UseFirestoreQueryProps) => {
     const [data, setData] = useState<T[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const { user, loading: authLoading, isAuthenticated } = useAuth();
 
     useEffect(() => {
+        // Don't run query if auth is still loading
+        if (authLoading) {
+            setLoading(true); // Ensure loading state is true while auth is loading
+            return;
+        }
+
+        // Don't run query if auth is required but user is not authenticated
+        if (requireAuth && !isAuthenticated) {
+            setLoading(false);
+            setData(null);
+            return;
+        }
+
+        // Set loading to true when starting queries
+        setLoading(true);
+
         let q: Query<DocumentData> = collection(db, path);
 
         const queryConstraints: QueryConstraint[] = constraints.map((c) => {
@@ -62,7 +82,6 @@ export const useFirestoreQuery = <T>({
         }
 
         const fetchData = async () => {
-            setLoading(true);
             try {
                 const querySnapshot = await getDocs(q);
                 const docs = querySnapshot.docs.map(
@@ -99,7 +118,7 @@ export const useFirestoreQuery = <T>({
         } else {
             fetchData();
         }
-    }, [path, JSON.stringify(constraints), listen]);
+    }, [path, JSON.stringify(constraints), listen, requireAuth, authLoading, isAuthenticated, user?.uid]);
 
     return { data, loading, error };
 }; 

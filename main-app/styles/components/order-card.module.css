@@ -1,0 +1,96 @@
+.card {
+  background-color: var(--neutral-0);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--neutral-200);
+  transition: var(--transition-all);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--neutral-100);
+  padding-bottom: var(--space-4);
+}
+
+.customerName {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--neutral-800);
+}
+
+.style {
+  font-size: var(--text-base);
+  color: var(--neutral-500);
+  margin-top: var(--space-1);
+}
+
+.status {
+  padding: var(--space-1-5) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-transform: capitalize;
+}
+
+.New {
+  background-color: var(--primary-100);
+  color: var(--primary-800);
+}
+
+.InProgress {
+  background-color: var(--warning-100);
+  color: var(--warning-800);
+}
+
+.ReadyforFitting {
+  background-color: var(--accent-indigo-100);
+  color: var(--accent-indigo-800);
+}
+
+.Completed {
+  background-color: var(--success-100);
+  color: var(--success-800);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.details > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--neutral-500);
+  margin-bottom: var(--space-1);
+}
+
+.value {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--neutral-700);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--neutral-100);
+}
