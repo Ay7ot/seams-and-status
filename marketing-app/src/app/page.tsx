@@ -242,8 +242,8 @@ export default function Home() {
           <section className={styles.section}>
             <div className={styles.testimonial}>
               <p>
-                "Seams & Status transformed my tailoring business. I can now serve twice as many customers
-                with half the stress. My customers love how organized and professional I've become!"
+                &quot;Seams & Status transformed my tailoring business. I can now serve twice as many customers
+                with half the stress. My customers love how organized and professional I&apos;ve become!&quot;
               </p>
               <footer>
                 Sarah Johnson, Master Tailor
