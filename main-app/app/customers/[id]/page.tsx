@@ -1,6 +1,6 @@
 'use client';
 
-import { Usable, use, useState } from 'react';
+import { use, useState } from 'react';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { useAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/layout';
