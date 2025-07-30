@@ -49,15 +49,16 @@
 .authCard {
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   background: var(--neutral-0);
   border: none;
   border-radius: 0;
   box-shadow: none;
+  overflow-y: auto;
 }
 
 @supports (height: 100dvh) {
@@ -327,11 +328,11 @@
 
   .authFormSide {
     height: auto;
-    overflow-y: visible;
+    overflow-y: scroll;
   }
 
   .authCard {
-    height: auto;
+    height: 100%;
     min-height: auto;
     background: var(--neutral-0);
     border-radius: var(--radius-2xl);
@@ -352,8 +353,7 @@
     font-size: var(--text-lg);
   }
 
-  .input,
-  .socialButton {
+  .input{
     height: 52px;
   }
 
@@ -472,9 +472,9 @@
     background: var(--neutral-0);
     align-items: center;
     justify-content: center;
-    padding: var(--space-16);
+    /* padding: var(--space-16); */
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: scroll;
   }
 
   @supports (height: 100dvh) {
@@ -490,7 +490,7 @@
     padding: var(--space-12);
     border: none;
     max-width: 520px;
-    height: auto;
+    height: 100%;
     min-height: auto;
   }
 
@@ -507,8 +507,7 @@
     display: none; /* Hidden on desktop */
   }
 
-  .input,
-  .socialButton {
+  .input{
     height: 56px;
   }
 

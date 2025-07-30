@@ -27,6 +27,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3000';
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -34,31 +35,33 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <h2>Seams & Status</h2>
-        </div>
-
-        <nav className={styles.nav}>
-          <div className={styles.navLinks}>
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How it Works</a>
-            <a href="#benefits">Benefits</a>
+      <header className={styles.headerMain}>
+        <div className={styles.header}>
+          <div className={styles.logo}>
+            <h2>Seams & Status</h2>
           </div>
-          <div className={styles.authButtons}>
-            <a href="/login" className={styles.loginButton}>Login</a>
+
+          <nav className={styles.nav}>
+            <div className={styles.navLinks}>
+              <a href="#features">Features</a>
+              <a href="#how-it-works">How it Works</a>
+              <a href="#benefits">Benefits</a>
+            </div>
+            <div className={styles.authButtons}>
+              <a href={`${mainAppUrl}/login`} className={styles.loginButton} target="_blank" rel="noopener noreferrer">Login</a>
+              <ThemeToggle />
+              <a href={`${mainAppUrl}/signup`} className={`${styles.button} ${styles.primaryButton}`} target="_blank" rel="noopener noreferrer">
+                Get Started
+              </a>
+            </div>
+          </nav>
+
+          <div className={styles.mobileNav}>
             <ThemeToggle />
-            <a href="/signup" className={`${styles.button} ${styles.primaryButton}`}>
-              Get Started
-            </a>
+            <button className={styles.hamburgerButton} onClick={toggleSidebar}>
+              <Menu size={24} />
+            </button>
           </div>
-        </nav>
-
-        <div className={styles.mobileNav}>
-          <ThemeToggle />
-          <button className={styles.hamburgerButton} onClick={toggleSidebar}>
-            <Menu size={24} />
-          </button>
         </div>
       </header>
 
@@ -77,7 +80,7 @@ export default function Home() {
           <a href="#benefits" onClick={toggleSidebar}>Benefits</a>
         </nav>
         <div className={styles.sidebarCta}>
-          <a href="/signup" className={`${styles.button} ${styles.primaryButton}`}>
+          <a href={`${mainAppUrl}/signup`} className={`${styles.button} ${styles.primaryButton}`} target="_blank" rel="noopener noreferrer">
             Get Started
           </a>
         </div>
@@ -90,7 +93,6 @@ export default function Home() {
             <div className={styles.heroText}>
               <h1>
                 Ditch the Pen and Paper.
-                <br />
                 Modernize Your Tailoring Business.
               </h1>
               <p>
@@ -98,7 +100,7 @@ export default function Home() {
                 measurements, orders, and payments. All in one place.
               </p>
               <div className={styles.heroButtons}>
-                <a href="/signup" className={`${styles.button} ${styles.primaryButton} ${styles.largeButton}`}>
+                <a href={`${mainAppUrl}/signup`} className={`${styles.button} ${styles.primaryButton} ${styles.largeButton}`} target="_blank" rel="noopener noreferrer">
                   Start Free Today
                 </a>
                 <a href="#features" className={`${styles.button} ${styles.secondaryButton} ${styles.largeButton}`}>
@@ -259,7 +261,7 @@ export default function Home() {
                 Join hundreds of tailors who have already transformed their businesses with Seams & Status.
               </p>
               <div className={styles.ctaButtons}>
-                <a href="/signup" className={`${styles.button} ${styles.largeButton}`}>
+                <a href={`${mainAppUrl}/signup`} className={`${styles.button} ${styles.largeButton}`} target="_blank" rel="noopener noreferrer">
                   Start Your Free Trial
                 </a>
                 <p className={styles.ctaNote}>No credit card required • Setup in under 5 minutes</p>

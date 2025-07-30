@@ -7,16 +7,25 @@
     transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
+.headerMain {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
-    border-bottom: 1px solid var(--neutral-200);
     padding: var(--space-4) var(--space-6);
-    position: sticky;
-    top: 0;
     background-color: var(--neutral-0);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
     z-index: var(--z-sticky);
     transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
@@ -363,6 +372,12 @@
     gap: var(--space-8);
 }
 
+@media screen and (min-width: 1024px) {
+    .featureGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 .featureCard {
     background-color: var(--neutral-0);
     padding: var(--space-6);
@@ -456,9 +471,12 @@
     padding: var(--space-6);
     border-radius: var(--radius-xl);
     border: 1px solid var(--neutral-200);
-    text-align: center;
+    text-align: start;
     box-shadow: var(--shadow-sm);
     transition: var(--transition-all);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
 }
 
 .benefitCard:hover {
@@ -838,6 +856,12 @@
 
     .ctaSection .sectionTitle {
         font-size: var(--text-3xl);
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .logo h2 {
+        font-size: var(--text-4xl);
     }
 }
 
