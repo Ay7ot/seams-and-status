@@ -27,8 +27,6 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3000';
 
-  console.log(mainAppUrl, process.env.NEXT_PUBLIC_MAIN_APP_URL);
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -248,7 +246,7 @@ export default function Home() {
                 with half the stress. My customers love how organized and professional I&apos;ve become!&quot;
               </p>
               <footer>
-                Sarah Johnson, Master Tailor
+                Funmilayo Ibiteye, CEO Of Exxential D'Services
               </footer>
             </div>
           </section>
