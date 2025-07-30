@@ -27,7 +27,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3000';
 
-  console.log(mainAppUrl);
+  console.log(mainAppUrl, process.env.NEXT_PUBLIC_MAIN_APP_URL);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
