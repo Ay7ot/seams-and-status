@@ -8,22 +8,41 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Lock down the users collection
+    // Users collection - users can only access their own document
     match /users/{userId} {
-      // Users can only read/update their own document
-      allow read, update, delete: if isAuthenticated() && request.auth.uid == userId;
-      // Anyone can create a user document during sign-up
-      allow create: if isAuthenticated();
+      allow read, write, delete: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Customers collection
     match /customers/{customerId} {
+      // For reads and writes, check if user owns the document
       allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      // For creates, check if user is setting themselves as owner
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      // For deletes, check if user owns the document (resource exists during delete)
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
     }
 
+    // Measurements collection
     match /measurements/{measurementId} {
       allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    // Payments collection
+    match /payments/{paymentId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
     }
   }
 } 
