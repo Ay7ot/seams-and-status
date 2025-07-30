@@ -1,10 +1,38 @@
 import './globals.css';
 import { Metadata } from 'next';
 import { Providers } from './providers';
+import { siteConfig } from '@/lib/site';
 
 export const metadata: Metadata = {
-    title: "Seams & Status",
-    description: "A simple tool for tailors to manage their customers, measurements, and orders.",
+    metadataBase: new URL(siteConfig.url),
+    title: {
+        default: siteConfig.name,
+        template: `%s | ${siteConfig.name}`,
+    },
+    description: siteConfig.description,
+    openGraph: {
+        type: "website",
+        url: siteConfig.url,
+        title: siteConfig.name,
+        description: siteConfig.description,
+        images: [
+            {
+                url: siteConfig.ogImage,
+                width: 1200,
+                height: 630,
+                alt: siteConfig.name,
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: siteConfig.name,
+        description: siteConfig.description,
+        images: [siteConfig.ogImage],
+    },
+    icons: {
+        icon: "/favicon.ico",
+    },
 };
 
 export default function RootLayout({
