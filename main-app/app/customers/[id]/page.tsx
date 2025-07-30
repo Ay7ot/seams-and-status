@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 
 interface CustomerDetailPageProps {
-    params: Usable<{ id: string }>;
+    params: Promise<{ id: string }>;
 }
 
 const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
