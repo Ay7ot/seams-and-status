@@ -7,6 +7,17 @@
   background-color: var(--neutral-50);
 }
 
+/* PWA Fullscreen support */
+@media (display-mode: fullscreen) {
+  .dashboardContainer {
+    padding-top: var(--safe-area-inset-top);
+    padding-bottom: var(--safe-area-inset-bottom);
+    min-height: calc(
+      100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
+    );
+  }
+}
+
 @supports (height: 100dvh) {
   .dashboardContainer {
     min-height: 100dvh;
@@ -29,6 +40,14 @@
   transform: translateX(-100%); /* Hidden by default for mobile-first */
   display: flex;
   flex-direction: column;
+}
+
+/* PWA safe area support for sidebar */
+@media (display-mode: fullscreen) {
+  .sidebar {
+    top: var(--safe-area-inset-top);
+    height: calc(100vh - var(--safe-area-inset-top));
+  }
 }
 
 @supports (height: 100dvh) {
@@ -224,6 +243,16 @@
   min-height: 72px;
 }
 
+/* PWA safe area support for top navbar */
+@media (display-mode: fullscreen) {
+  .topNavbar {
+    top: var(--safe-area-inset-top);
+    z-index: calc(
+      var(--z-sticky) + 1
+    ); /* Ensure it stays above other content */
+  }
+}
+
 .headerContainer {
   display: flex;
   justify-content: space-between;
@@ -327,6 +356,13 @@
   overflow-y: auto;
   background-color: var(--neutral-50);
   padding-bottom: 80px; /* Add padding for bottom nav */
+}
+
+/* PWA safe area support for main content */
+@media (display-mode: fullscreen) {
+  .mainContent {
+    padding-bottom: calc(80px + var(--safe-area-inset-bottom));
+  }
 }
 
 .contentContainer {

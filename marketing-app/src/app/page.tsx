@@ -246,7 +246,7 @@ export default function Home() {
                 with half the stress. My customers love how organized and professional I&apos;ve become!&quot;
               </p>
               <footer>
-                Funmilayo Ibiteye, CEO Of Exxential D'Services
+                Funmilayo Ibiteye, CEO Of Exxential D&apos;Services
               </footer>
             </div>
           </section>

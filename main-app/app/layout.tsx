@@ -31,8 +31,11 @@ export const metadata: Metadata = {
         images: [siteConfig.ogImage],
     },
     icons: {
-        icon: "/favicon.ico",
+        icon: "/icons/favicon-32x32.png",
+        shortcut: "/icons/favicon-16x16.png",
+        apple: "/icons/apple-touch-icon.png",
     },
+    manifest: "/manifest.json",
 };
 
 export default function RootLayout({

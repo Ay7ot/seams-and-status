@@ -9,6 +9,17 @@
   overflow-x: hidden;
 }
 
+/* PWA Fullscreen support for auth */
+@media (display-mode: fullscreen) {
+  .authContainer {
+    padding-top: var(--safe-area-inset-top);
+    padding-bottom: var(--safe-area-inset-bottom);
+    min-height: calc(
+      100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
+    );
+  }
+}
+
 @supports (height: 100dvh) {
   .authContainer {
     min-height: 100dvh;
@@ -49,7 +60,7 @@
 .authCard {
   width: 100%;
   height: 100%;
-  
+
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
@@ -353,7 +364,7 @@
     font-size: var(--text-lg);
   }
 
-  .input{
+  .input {
     height: 52px;
   }
 
@@ -507,7 +518,7 @@
     display: none; /* Hidden on desktop */
   }
 
-  .input{
+  .input {
     height: 56px;
   }
 
