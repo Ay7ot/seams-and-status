@@ -68,6 +68,10 @@ export default function RootLayout({
                         `,
                     }}
                 />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+                <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+                <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
             </head>
             <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
             <body>

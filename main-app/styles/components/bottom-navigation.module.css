@@ -5,7 +5,10 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px; /* Standard mobile nav height */
+  height: calc(
+    80px + env(safe-area-inset-bottom, 0px)
+  ); /* Standard mobile nav height */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background-color: var(--neutral-0);
   border-top: 1px solid var(--neutral-200);
   display: flex;
@@ -20,7 +23,7 @@
 @media (display-mode: fullscreen) {
   .bottomNav {
     bottom: var(--safe-area-inset-bottom);
-    height: calc(64px + var(--safe-area-inset-bottom));
+    height: calc(80px + var(--safe-area-inset-bottom));
     padding-bottom: var(--safe-area-inset-bottom);
   }
 }
@@ -44,9 +47,11 @@
   -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
 }
 
-.navItem:hover {
-  background-color: var(--neutral-100);
-  color: var(--neutral-800);
+@media screen and (min-width: 768px) {
+  .navItem:hover,
+  .navItem:active {
+    color: var(--neutral-800);
+  }
 }
 
 .navItem.active {

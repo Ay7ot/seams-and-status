@@ -190,7 +190,9 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
 
                 <div className={styles.sidebarFooter}>
                     <div className={styles.sidebarActions}>
-                        <ThemeToggle />
+                        <div className={styles.desktopThemeToggle}>
+                            <ThemeToggle />
+                        </div>
                         <button
                             className={styles.logoutButton}
                             onClick={handleLogout}
@@ -227,6 +229,9 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
                         </div>
 
                         <div className={styles.topNavbarRight}>
+                            <div className={styles.mobileThemeToggle}>
+                                <ThemeToggle />
+                            </div>
                             <div
                                 className={styles.userProfile}
                                 role="button"
