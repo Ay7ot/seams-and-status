@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginWithEmail, signInWithGoogle, validateEmail, validatePassword } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/ToastProvider';
 import styles from '../../styles/components/auth.module.css';
 
 interface FormData {
@@ -20,6 +21,7 @@ interface FormErrors {
 
 export default function LoginPage() {
     const router = useRouter();
+    const { showSuccess, showError } = useToast();
     const [formData, setFormData] = useState<FormData>({
         email: '',
         password: ''
@@ -69,12 +71,13 @@ export default function LoginPage() {
             const result = await loginWithEmail(formData);
 
             if (result.success) {
+                showSuccess('Welcome back!', 'You have successfully signed in.');
                 router.push('/dashboard');
             } else {
-                setErrors({ general: result.error });
+                showError('Sign in failed', result.error);
             }
         } catch {
-            setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            showError('Sign in failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -88,12 +91,13 @@ export default function LoginPage() {
             const result = await signInWithGoogle();
 
             if (result.success) {
+                showSuccess('Welcome back!', 'You have successfully signed in with Google.');
                 router.push('/dashboard');
             } else {
-                setErrors({ general: result.error });
+                showError('Google sign in failed', result.error);
             }
         } catch {
-            setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            showError('Google sign in failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setGoogleLoading(false);
         }
@@ -131,11 +135,7 @@ export default function LoginPage() {
                             <p className={styles.subtitle}>Sign in to your account to continue</p>
                         </div>
 
-                        {errors.general && (
-                            <div className={styles.errorMessage}>
-                                {errors.general}
-                            </div>
-                        )}
+
 
                         <form onSubmit={handleEmailLogin} className={styles.form}>
                             <div className={styles.formGroup}>

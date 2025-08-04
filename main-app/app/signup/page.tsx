@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signupWithEmail, signInWithGoogle, validateEmail, validatePassword, validateConfirmPassword } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/ToastProvider';
 import styles from '../../styles/components/auth.module.css';
 
 interface FormData {
@@ -24,6 +25,7 @@ interface FormErrors {
 
 export default function SignupPage() {
     const router = useRouter();
+    const { showSuccess, showError } = useToast();
     const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
@@ -88,12 +90,13 @@ export default function SignupPage() {
             const result = await signupWithEmail(formData);
 
             if (result.success) {
+                showSuccess('Account created!', 'Welcome to Seams & Status. Your account has been created successfully.');
                 router.push('/dashboard');
             } else {
-                setErrors({ general: result.error });
+                showError('Account creation failed', result.error);
             }
         } catch {
-            setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            showError('Account creation failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -107,12 +110,13 @@ export default function SignupPage() {
             const result = await signInWithGoogle();
 
             if (result.success) {
+                showSuccess('Account created!', 'Welcome to Seams & Status. Your account has been created with Google.');
                 router.push('/dashboard');
             } else {
-                setErrors({ general: result.error });
+                showError('Google sign up failed', result.error);
             }
         } catch {
-            setErrors({ general: 'An unexpected error occurred. Please try again.' });
+            showError('Google sign up failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setGoogleLoading(false);
         }
@@ -146,11 +150,7 @@ export default function SignupPage() {
                             <p className={styles.subtitle}>Start managing your tailoring business</p>
                         </div>
 
-                        {errors.general && (
-                            <div className={styles.errorMessage}>
-                                {errors.general}
-                            </div>
-                        )}
+
 
                         <form onSubmit={handleEmailSignup} className={styles.form}>
                             <div className={styles.formGroup}>
