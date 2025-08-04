@@ -73,7 +73,7 @@ export default function RootLayout({
                 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
                 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
             </head>
-            <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+            <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
             <body>
                 <Providers>
                     {children}
