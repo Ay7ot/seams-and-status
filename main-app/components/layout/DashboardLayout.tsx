@@ -146,6 +146,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
 
     return (
         <div className={styles.dashboardContainer}>
+            <div className={styles.statusBar} />
             <a href="#main-content" className={styles.skipLink}>
                 Skip to main content
             </a>

@@ -11,11 +11,9 @@
 /* PWA Fullscreen support */
 @media (display-mode: fullscreen) {
   .dashboardContainer {
-    height: calc(
-      100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
-    );
     padding-top: var(--safe-area-inset-top);
     padding-bottom: var(--safe-area-inset-bottom);
+    height: 100vh;
   }
 }
 
@@ -23,6 +21,20 @@
   .dashboardContainer {
     height: 100dvh;
   }
+}
+
+.statusBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-area-inset-top);
+  background-color: var(--neutral-800); /* Dark background for light mode */
+  z-index: var(--z-modal); /* High z-index to be on top */
+}
+
+[data-theme="dark"] .statusBar {
+  background-color: var(--neutral-0); /* Match dark theme background */
 }
 
 /* Sidebar Navigation */
