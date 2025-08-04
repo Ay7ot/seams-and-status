@@ -20,7 +20,7 @@
 }
 
 /* PWA safe area support for bottom navigation */
-@media (display-mode: fullscreen), (display-mode: standalone) {
+@media (display-mode: fullscreen) {
   .bottomNav {
     bottom: var(--safe-area-inset-bottom);
     height: calc(80px + var(--safe-area-inset-bottom));
