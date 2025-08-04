@@ -3,7 +3,7 @@
   "short_name": "Seams & Status",
   "description": "The simple, modern way for tailors to manage customers, measurements, orders, and payments. All in one place.",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",

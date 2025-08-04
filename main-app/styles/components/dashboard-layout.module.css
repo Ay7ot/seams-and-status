@@ -9,7 +9,7 @@
 }
 
 /* PWA Fullscreen support */
-@media (display-mode: fullscreen) {
+@media (display-mode: fullscreen), (display-mode: standalone) {
   .dashboardContainer {
     padding-top: var(--safe-area-inset-top);
     padding-bottom: var(--safe-area-inset-bottom);
@@ -56,7 +56,7 @@
 }
 
 /* PWA safe area support for sidebar */
-@media (display-mode: fullscreen) {
+@media (display-mode: fullscreen), (display-mode: standalone) {
   .sidebar {
     top: var(--safe-area-inset-top);
     height: calc(100vh - var(--safe-area-inset-top));
@@ -379,7 +379,7 @@
 }
 
 /* PWA safe area support for main content */
-@media (display-mode: fullscreen) {
+@media (display-mode: fullscreen), (display-mode: standalone) {
   .contentContainer {
     padding-bottom: calc(var(--space-6) + 80px + var(--safe-area-inset-bottom));
   }
