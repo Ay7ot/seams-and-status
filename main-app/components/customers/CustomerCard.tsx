@@ -56,11 +56,15 @@ const CustomerCard = ({ customer }: CustomerCardProps) => {
                         <span className={styles.infoValue}>{customer.gender}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Join Date</span>
-                        <span className={styles.infoValue}>
-                            {customer.createdAt ? formatDate(customer.createdAt.toDate()) : 'N/A'}
-                        </span>
+                        <span className={styles.infoLabel}>Status</span>
+                        <span className={styles.infoValue}>Active</span>
                     </div>
+                </div>
+                <div className={styles.cardFooter}>
+                    <span>
+                        Joined on{' '}
+                        {customer.createdAt ? formatDate(customer.createdAt.toDate()) : 'N/A'}
+                    </span>
                 </div>
             </div>
         </Link>

@@ -11,6 +11,7 @@ import {
     LogOut,
     Menu,
     X,
+    ArrowLeft,
 } from 'react-feather';
 import { useAuth } from '@/hooks/useAuth';
 import { logout } from '@/lib/auth';
@@ -37,6 +38,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
     const { user, loading } = useAuth(); // Destructure loading state
     const router = useRouter();
     const pathname = usePathname();
+    const showBackButton = pathname.split('/').filter(Boolean).length > 1;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const sidebarRef = useRef<HTMLElement>(null);
@@ -144,6 +146,8 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
         return 'U';
     };
 
+    console.log(showBackButton)
+
     return (
         <div className={styles.dashboardContainer}>
             <div className={styles.statusBar} />
@@ -211,6 +215,15 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
                 <header className={styles.topNavbar} role="banner">
                     <div className={styles.headerContainer}>
                         <div className={styles.topNavbarLeft}>
+                            {showBackButton && (
+                                <button
+                                    className={styles.backButton}
+                                    onClick={() => router.back()}
+                                    aria-label="Go back"
+                                >
+                                    <ArrowLeft size={20} className={styles.navIcon} />
+                                </button>
+                            )}
                             <button
                                 className={styles.mobileMenuButton}
                                 onClick={toggleSidebar}
@@ -231,7 +244,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
 
                         <div className={styles.topNavbarRight}>
                             <div className={styles.mobileThemeToggle}>
-                                <ThemeToggle />
+                                {/* <ThemeToggle /> */}
                             </div>
                             <div
                                 className={styles.userProfile}
