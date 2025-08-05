@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus, Search, Edit, Trash } from 'react-feather';
+import { Plus, Search, Edit, Trash, Users, UserPlus, UserCheck, Calendar } from 'react-feather';
 import { Button, Modal, ActionsMenu } from '@/components/ui';
 import CustomerForm, {
     CustomerFormData,
@@ -12,7 +13,8 @@ import CustomerForm, {
 import CustomerCard from '@/components/customers/CustomerCard';
 import { Customer } from '@/lib/types';
 import styles from '@/styles/components/customer-card.module.css';
-import formStyles from '@/styles/components/auth.module.css'; // For search input
+import formStyles from '@/styles/components/auth.module.css';
+import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -29,6 +31,7 @@ const CustomersPage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const router = useRouter();
 
     const {
         data: customers,
@@ -48,6 +51,30 @@ const CustomersPage = () => {
                 customer.contact.includes(searchTerm)
         );
     }, [customers, searchTerm]);
+
+    // Calculate customer statistics
+    const customerStats = useMemo(() => {
+        if (!customers) return null;
+
+        const totalCustomers = customers.length;
+        const recentCustomers = customers.filter(customer => {
+            if (!customer.createdAt) return false;
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return customer.createdAt.toDate() > thirtyDaysAgo;
+        }).length;
+
+        const genderStats = customers.reduce((acc, customer) => {
+            acc[customer.gender] = (acc[customer.gender] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        return {
+            totalCustomers,
+            recentCustomers,
+            genderStats,
+        };
+    }, [customers]);
 
     const handleAddNew = () => {
         setEditingCustomer(null);
@@ -100,6 +127,7 @@ const CustomersPage = () => {
 
     return (
         <DashboardLayout title="Customers" breadcrumb="Customer Management">
+            {/* Search and Add Section */}
             <div
                 style={{
                     display: 'flex',
@@ -135,7 +163,124 @@ const CustomersPage = () => {
                     Add Customer
                 </Button>
             </div>
+            {/* Business Overview Section */}
+            {loading ? (
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Customer Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className={dashboardStyles.overviewCard}>
+                                <div className={dashboardStyles.cardHeader}>
+                                    <div
+                                        className={dashboardStyles.cardIcon}
+                                        style={{
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                            backgroundColor: 'var(--neutral-100)'
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            height: '16px',
+                                            width: '80px',
+                                            backgroundColor: 'var(--neutral-100)',
+                                            borderRadius: 'var(--radius-md)',
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                        }}
+                                    />
+                                </div>
+                                <div className={dashboardStyles.cardStats}>
+                                    {[...Array(2)].map((_, j) => (
+                                        <div key={j} className={dashboardStyles.statItem}>
+                                            <div
+                                                style={{
+                                                    height: '24px',
+                                                    width: '60px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    marginBottom: '4px',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                            <div
+                                                style={{
+                                                    height: '12px',
+                                                    width: '80px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : customerStats && (
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Customer Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <Users size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Total Customers</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{customerStats.totalCustomers}</div>
+                                    <div className={dashboardStyles.statText}>All Customers</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{customerStats.recentCustomers}</div>
+                                    <div className={dashboardStyles.statText}>New This Month</div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <UserPlus size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Gender Distribution</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{customerStats.genderStats.female || 0}</div>
+                                    <div className={dashboardStyles.statText}>Female</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{customerStats.genderStats.male || 0}</div>
+                                    <div className={dashboardStyles.statText}>Male</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <UserCheck size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Activity</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{customerStats.totalCustomers}</div>
+                                    <div className={dashboardStyles.statText}>Active Customers</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+
+
+            {/* Customer Grid */}
             {loading && (
                 <div className={styles.customerGrid}>
                     {[...Array(6)].map((_, i) => (
@@ -187,13 +332,23 @@ const CustomersPage = () => {
                             padding: 'var(--space-8)',
                             backgroundColor: 'var(--neutral-0)',
                             borderRadius: 'var(--radius-xl)',
+                            border: '1px solid var(--neutral-200)',
+                            boxShadow: 'var(--shadow-sm)',
                         }}
                     >
+                        <Users
+                            size={48}
+                            style={{
+                                color: 'var(--neutral-400)',
+                                marginBottom: 'var(--space-4)',
+                            }}
+                        />
                         <h2
                             style={{
                                 fontSize: 'var(--text-xl)',
                                 fontWeight: 'var(--font-semibold)',
                                 marginBottom: 'var(--space-4)',
+                                color: 'var(--neutral-900)',
                             }}
                         >
                             No Customers Found
@@ -203,12 +358,13 @@ const CustomersPage = () => {
                                 fontSize: 'var(--text-base)',
                                 color: 'var(--neutral-600)',
                                 marginBottom: 'var(--space-6)',
+                                lineHeight: 'var(--leading-relaxed)',
                             }}
                         >
-                            Get started by adding your first customer.
+                            Get started by adding your first customer to build your client base.
                         </p>
-                        <Button variant="outline">
-                            <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
+                        <Button onClick={handleAddNew}>
+                            <UserPlus size={20} style={{ marginRight: 'var(--space-2)' }} />
                             Add First Customer
                         </Button>
                     </div>

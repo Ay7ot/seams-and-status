@@ -4,15 +4,20 @@ import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Button, Select, SelectOption } from '@/components/ui';
+import { Button, Select, SelectOption, ThemeToggle } from '@/components/ui';
 import { UserProfile } from '@/lib/types';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { LogOut, User, Settings, Droplet, Shield } from 'react-feather';
+import { useRouter } from 'next/navigation';
 import styles from '@/styles/components/auth.module.css';
 import settingsStyles from '@/styles/components/settings.module.css';
+import dashboardStyles from '@/styles/components/dashboard.module.css';
 
 const SettingsPage = () => {
     const { user } = useAuth();
+    const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [settings, setSettings] = useState({
@@ -103,6 +108,15 @@ const SettingsPage = () => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            router.push('/login');
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    };
+
     return (
         <DashboardLayout title="Settings" breadcrumb="Application Settings">
             {/* Responsive Header */}
@@ -133,12 +147,19 @@ const SettingsPage = () => {
             <div className={settingsStyles.gridContainer}>
                 {/* Business Information */}
                 <div className={settingsStyles.card}>
-                    <h2 className={settingsStyles.cardTitle}>
-                        Business Information
-                    </h2>
-                    <p className={settingsStyles.cardDescription}>
-                        Update your business details that will be used throughout the application.
-                    </p>
+                    <div className={settingsStyles.cardHeader}>
+                        <div className={settingsStyles.cardIcon}>
+                            <User size={20} />
+                        </div>
+                        <div>
+                            <h2 className={settingsStyles.cardTitle}>
+                                Business Information
+                            </h2>
+                            <p className={settingsStyles.cardDescription}>
+                                Update your business details that will be used throughout the application.
+                            </p>
+                        </div>
+                    </div>
 
                     <div className={styles.form}>
                         <div className={styles.formGroup}>
@@ -197,12 +218,19 @@ const SettingsPage = () => {
 
                 {/* Default Preferences */}
                 <div className={settingsStyles.card}>
-                    <h2 className={settingsStyles.cardTitle}>
-                        Default Preferences
-                    </h2>
-                    <p className={settingsStyles.cardDescription}>
-                        Set your default preferences for measurements and currency.
-                    </p>
+                    <div className={settingsStyles.cardHeader}>
+                        <div className={settingsStyles.cardIcon}>
+                            <Settings size={20} />
+                        </div>
+                        <div>
+                            <h2 className={settingsStyles.cardTitle}>
+                                Default Preferences
+                            </h2>
+                            <p className={settingsStyles.cardDescription}>
+                                Set your default preferences for measurements and currency.
+                            </p>
+                        </div>
+                    </div>
 
                     <div className={styles.form}>
                         <div className={styles.formGroup}>
@@ -223,6 +251,66 @@ const SettingsPage = () => {
                                 onChange={(value) => handleSettingChange('defaultCurrency', value)}
                                 disabled={isSaving}
                             />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Appearance Settings */}
+                <div className={settingsStyles.card}>
+                    <div className={settingsStyles.cardHeader}>
+                        <div className={settingsStyles.cardIcon}>
+                            <Droplet size={20} />
+                        </div>
+                        <div>
+                            <h2 className={settingsStyles.cardTitle}>
+                                Appearance
+                            </h2>
+                            <p className={settingsStyles.cardDescription}>
+                                Customize the appearance of your application.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className={styles.form}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Theme</label>
+                            <ThemeToggle />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Account Settings */}
+                <div className={settingsStyles.card}>
+                    <div className={settingsStyles.cardHeader}>
+                        <div className={settingsStyles.cardIcon}>
+                            <Shield size={20} />
+                        </div>
+                        <div>
+                            <h2 className={settingsStyles.cardTitle}>
+                                Account Settings
+                            </h2>
+                            <p className={settingsStyles.cardDescription}>
+                                Manage your account and security settings.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className={styles.form}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Account Actions</label>
+                            <Button
+                                variant="danger"
+                                onClick={handleLogout}
+                                style={{
+                                    width: '100%',
+                                    justifyContent: 'flex-start',
+                                    gap: 'var(--space-3)',
+                                    height: '48px',
+                                }}
+                            >
+                                <LogOut size={20} />
+                                <span>Sign Out</span>
+                            </Button>
                         </div>
                     </div>
                 </div>

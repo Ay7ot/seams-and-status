@@ -8,7 +8,7 @@ import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { Order, Customer, Payment } from '@/lib/types';
 import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { Button } from '@/components/ui';
-import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar } from 'react-feather';
+import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar, Settings } from 'react-feather';
 import { formatCurrency } from '@/lib/utils';
 
 const DashboardPage = () => {
@@ -142,206 +142,311 @@ const DashboardPage = () => {
 
     return (
         <DashboardLayout title="Dashboard" breadcrumb="Overview">
-            {/* Welcome Section */}
-            <div className={dashboardStyles.welcomeSection}>
-                <div>
-                    <h1 className={dashboardStyles.welcomeTitle}>
-                        Welcome back, {userProfile?.name || 'Tailor'}
-                    </h1>
-                    <p className={dashboardStyles.welcomeSubtitle}>
-                        Here&apos;s what&apos;s happening with your business today.
-                    </p>
-                </div>
-                <Button onClick={() => router.push('/orders')} size="large" className={dashboardStyles.primaryAction}>
-                    <Plus size={18} />
-                    Create Order
-                </Button>
-            </div>
 
-            {/* Statistics Cards */}
+
+            {/* Business Overview Cards */}
             {shouldShowLoading ? (
-                <div className={dashboardStyles.statsGrid}>
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className={dashboardStyles.statCard}>
-                            <div className={dashboardStyles.statIcon} style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                            <div className={dashboardStyles.statContent}>
-                                <div style={{ height: 'var(--text-2xl)', width: '60px', backgroundColor: 'var(--neutral-200)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-2)', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                                <div style={{ height: 'var(--text-sm)', width: '100px', backgroundColor: 'var(--neutral-200)', borderRadius: 'var(--radius-md)', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : stats && (
-                <div className={dashboardStyles.statsGrid}>
-                    <div className={dashboardStyles.statCard}>
-                        <div className={dashboardStyles.statIcon}>
-                            <Scissors size={20} />
-                        </div>
-                        <div className={dashboardStyles.statContent}>
-                            <h3 className={dashboardStyles.statValue}>{stats.totalOrders}</h3>
-                            <p className={dashboardStyles.statLabel}>Total Orders</p>
-                        </div>
-                    </div>
-
-                    <div className={dashboardStyles.statCard}>
-                        <div className={dashboardStyles.statIcon}>
-                            <Users size={20} />
-                        </div>
-                        <div className={dashboardStyles.statContent}>
-                            <h3 className={dashboardStyles.statValue}>{stats.totalCustomers}</h3>
-                            <p className={dashboardStyles.statLabel}>Total Customers</p>
-                        </div>
-                    </div>
-
-                    <div className={dashboardStyles.statCard}>
-                        <div className={dashboardStyles.statIcon}>
-                            <DollarSign size={20} />
-                        </div>
-                        <div className={dashboardStyles.statContent}>
-                            <h3 className={dashboardStyles.statValue}>
-                                {formatCurrency(stats.totalRevenue, userCurrency)}
-                            </h3>
-                            <p className={dashboardStyles.statLabel}>Total Revenue</p>
-                        </div>
-                    </div>
-
-                    <div className={dashboardStyles.statCard}>
-                        <div className={dashboardStyles.statIcon}>
-                            <TrendingUp size={20} />
-                        </div>
-                        <div className={dashboardStyles.statContent}>
-                            <h3 className={dashboardStyles.statValue}>
-                                {formatCurrency(stats.totalPayments, userCurrency)}
-                            </h3>
-                            <p className={dashboardStyles.statLabel}>Total Payments</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Outstanding Balance Card */}
-            {stats && (
-                <div className={dashboardStyles.outstandingCard}>
-                    <div className={dashboardStyles.outstandingContent}>
-                        <div className={dashboardStyles.outstandingIcon}>
-                            <AlertCircle size={20} />
-                        </div>
-                        <div className={dashboardStyles.outstandingText}>
-                            <h3 className={dashboardStyles.outstandingTitle}>Outstanding Balance</h3>
-                            <p className={dashboardStyles.outstandingAmount}>
-                                {formatCurrency(stats.outstandingBalance, userCurrency)}
-                            </p>
-                        </div>
-                    </div>
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push('/orders')}
-                        className={dashboardStyles.outstandingAction}
-                    >
-                        View Orders
-                    </Button>
-                </div>
-            )}
-
-            {/* Status Overview */}
-            {shouldShowLoading ? (
-                <div className={dashboardStyles.statusOverview}>
-                    <h2 className={dashboardStyles.sectionTitle}>Order Status Overview</h2>
-                    <div className={dashboardStyles.statusGrid}>
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className={dashboardStyles.statusCard}>
-                                <div className={dashboardStyles.statusIcon} style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                                <div className={dashboardStyles.statusContent}>
-                                    <div style={{ height: 'var(--text-xl)', width: '40px', backgroundColor: 'var(--neutral-200)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-1)', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                                    <div style={{ height: 'var(--text-sm)', width: '80px', backgroundColor: 'var(--neutral-200)', borderRadius: 'var(--radius-md)', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Business Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className={dashboardStyles.overviewCard}>
+                                <div className={dashboardStyles.cardHeader}>
+                                    <div
+                                        className={dashboardStyles.cardIcon}
+                                        style={{
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                            backgroundColor: 'var(--neutral-100)'
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            height: '16px',
+                                            width: '80px',
+                                            backgroundColor: 'var(--neutral-100)',
+                                            borderRadius: 'var(--radius-md)',
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                        }}
+                                    />
+                                </div>
+                                <div className={dashboardStyles.cardStats}>
+                                    {[...Array(2)].map((_, j) => (
+                                        <div key={j} className={dashboardStyles.statItem}>
+                                            <div
+                                                style={{
+                                                    height: '24px',
+                                                    width: '60px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    marginBottom: '4px',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                            <div
+                                                style={{
+                                                    height: '12px',
+                                                    width: '80px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
             ) : stats && (
-                <div className={dashboardStyles.statusOverview}>
-                    <h2 className={dashboardStyles.sectionTitle}>Order Status Overview</h2>
-                    <div className={dashboardStyles.statusGrid}>
-                        <div className={`${dashboardStyles.statusCard} ${dashboardStyles.new}`}>
-                            <div className={dashboardStyles.statusIcon}>
-                                <AlertCircle size={18} />
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Business Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <Scissors size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Orders</span>
                             </div>
-                            <div className={dashboardStyles.statusContent}>
-                                <h3 className={dashboardStyles.statusValue}>{stats.statusCounts.New}</h3>
-                                <p className={dashboardStyles.statusLabel}>New Orders</p>
-                            </div>
-                        </div>
-
-                        <div className={`${dashboardStyles.statusCard} ${dashboardStyles.inProgress}`}>
-                            <div className={dashboardStyles.statusIcon}>
-                                <Clock size={18} />
-                            </div>
-                            <div className={dashboardStyles.statusContent}>
-                                <h3 className={dashboardStyles.statusValue}>{stats.statusCounts['In Progress']}</h3>
-                                <p className={dashboardStyles.statusLabel}>In Progress</p>
-                            </div>
-                        </div>
-
-                        <div className={`${dashboardStyles.statusCard} ${dashboardStyles.readyForFitting}`}>
-                            <div className={dashboardStyles.statusIcon}>
-                                <Users size={18} />
-                            </div>
-                            <div className={dashboardStyles.statusContent}>
-                                <h3 className={dashboardStyles.statusValue}>{stats.statusCounts['Ready for Fitting']}</h3>
-                                <p className={dashboardStyles.statusLabel}>Ready for Fitting</p>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{stats.totalOrders}</div>
+                                    <div className={dashboardStyles.statText}>Total Orders</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{stats.statusCounts.New}</div>
+                                    <div className={dashboardStyles.statText}>New Orders</div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className={`${dashboardStyles.statusCard} ${dashboardStyles.completed}`}>
-                            <div className={dashboardStyles.statusIcon}>
-                                <CheckCircle size={18} />
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <DollarSign size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Revenue</span>
                             </div>
-                            <div className={dashboardStyles.statusContent}>
-                                <h3 className={dashboardStyles.statusValue}>{stats.statusCounts.Completed}</h3>
-                                <p className={dashboardStyles.statusLabel}>Completed</p>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(stats.totalRevenue, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Total Revenue</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(stats.totalPayments, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Total Payments</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <Users size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Customers</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{stats.totalCustomers}</div>
+                                    <div className={dashboardStyles.statText}>Total Customers</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Quick Actions */}
-            <div className={dashboardStyles.quickActions}>
-                <h2 className={dashboardStyles.sectionTitle}>Quick Actions</h2>
-                <div className={dashboardStyles.actionGrid}>
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push('/customers')}
-                        className={dashboardStyles.actionButton}
-                    >
-                        <Users size={18} />
-                        Manage Customers
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push('/measurements')}
-                        className={dashboardStyles.actionButton}
-                    >
-                        <Scissors size={18} />
-                        View Measurements
-                    </Button>
-                    <Button
-                        variant="outline"
+            {/* Outstanding Balance Alert */}
+            {stats && stats.outstandingBalance > 0 && (
+                <div className={dashboardStyles.alertCard}>
+                    <div className={dashboardStyles.alertIcon}>
+                        <AlertCircle size={16} />
+                    </div>
+                    <div className={dashboardStyles.alertContent}>
+                        <span className={dashboardStyles.alertTitle}>Outstanding Balance</span>
+                        <span className={dashboardStyles.alertAmount}>
+                            {formatCurrency(stats.outstandingBalance, userCurrency)}
+                        </span>
+                    </div>
+                    <button
+                        className={dashboardStyles.alertAction}
                         onClick={() => router.push('/orders')}
-                        className={dashboardStyles.actionButton}
                     >
-                        <TrendingUp size={18} />
-                        All Orders
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push('/orders')}
-                        className={dashboardStyles.actionButton}
-                    >
-                        <Calendar size={18} />
-                        Schedule Fittings
-                    </Button>
+                        View Orders
+                    </button>
+                </div>
+            )}
+
+            {/* Desktop Two-Column Layout */}
+            <div className={dashboardStyles.desktopGrid}>
+                <div className={dashboardStyles.leftColumn}>
+                    {/* Order Status Pills */}
+                    {shouldShowLoading ? (
+                        <div className={dashboardStyles.statusSection}>
+                            <div className={dashboardStyles.sectionTitle}>Order Status</div>
+                            <div className={dashboardStyles.statusPills}>
+                                {[...Array(4)].map((_, i) => (
+                                    <div key={i} className={dashboardStyles.statusPill}>
+                                        <div
+                                            className={dashboardStyles.pillIcon}
+                                            style={{
+                                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                                backgroundColor: 'var(--neutral-200)'
+                                            }}
+                                        />
+                                        <div className={dashboardStyles.pillContent}>
+                                            <div
+                                                style={{
+                                                    height: '20px',
+                                                    width: '30px',
+                                                    backgroundColor: 'var(--neutral-200)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    marginBottom: '4px',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                            <div
+                                                style={{
+                                                    height: '12px',
+                                                    width: '50px',
+                                                    backgroundColor: 'var(--neutral-200)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : stats && (
+                        <div className={dashboardStyles.statusSection}>
+                            <div className={dashboardStyles.sectionTitle}>Order Status</div>
+                            <div className={dashboardStyles.statusPills}>
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.newStatus}`} onClick={() => router.push('/orders?status=new')}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <AlertCircle size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts.New}</span>
+                                        <span className={dashboardStyles.pillLabel}>New</span>
+                                    </div>
+                                </div>
+
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.progressStatus}`} onClick={() => router.push('/orders?status=in-progress')}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <Clock size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['In Progress']}</span>
+                                        <span className={dashboardStyles.pillLabel}>In Progress</span>
+                                    </div>
+                                </div>
+
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.fittingStatus}`} onClick={() => router.push('/orders?status=fitting')}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <Users size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['Ready for Fitting']}</span>
+                                        <span className={dashboardStyles.pillLabel}>Fitting</span>
+                                    </div>
+                                </div>
+
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.completedStatus}`} onClick={() => router.push('/orders?status=completed')}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <CheckCircle size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts.Completed}</span>
+                                        <span className={dashboardStyles.pillLabel}>Done</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className={dashboardStyles.rightColumn}>
+                    {/* Quick Actions */}
+                    {shouldShowLoading ? (
+                        <div className={dashboardStyles.quickActionsSection}>
+                            <div className={dashboardStyles.sectionTitle}>Quick Actions</div>
+                            <div className={dashboardStyles.actionButtons}>
+                                {[...Array(4)].map((_, i) => (
+                                    <div key={i} className={dashboardStyles.actionButton}>
+                                        <div
+                                            className={dashboardStyles.actionIcon}
+                                            style={{
+                                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                                backgroundColor: 'var(--neutral-200)'
+                                            }}
+                                        />
+                                        <div
+                                            style={{
+                                                height: '16px',
+                                                width: '80px',
+                                                backgroundColor: 'var(--neutral-200)',
+                                                borderRadius: 'var(--radius-md)',
+                                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={dashboardStyles.quickActionsSection}>
+                            <div className={dashboardStyles.sectionTitle}>Quick Actions</div>
+                            <div className={dashboardStyles.actionButtons}>
+                                <button
+                                    className={dashboardStyles.actionButton}
+                                    onClick={() => router.push('/customers')}
+                                >
+                                    <div className={dashboardStyles.actionIcon}>
+                                        <Users size={20} />
+                                    </div>
+                                    <span className={dashboardStyles.actionLabel}>Customers</span>
+                                </button>
+
+                                <button
+                                    className={dashboardStyles.actionButton}
+                                    onClick={() => router.push('/measurements')}
+                                >
+                                    <div className={dashboardStyles.actionIcon}>
+                                        <Scissors size={20} />
+                                    </div>
+                                    <span className={dashboardStyles.actionLabel}>Measurements</span>
+                                </button>
+
+                                <button
+                                    className={dashboardStyles.actionButton}
+                                    onClick={() => router.push('/orders')}
+                                >
+                                    <div className={dashboardStyles.actionIcon}>
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <span className={dashboardStyles.actionLabel}>All Orders</span>
+                                </button>
+
+                                <button
+                                    className={dashboardStyles.actionButton}
+                                    onClick={() => router.push('/settings')}
+                                >
+                                    <div className={dashboardStyles.actionIcon}>
+                                        <Settings size={20} />
+                                    </div>
+                                    <span className={dashboardStyles.actionLabel}>Settings</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

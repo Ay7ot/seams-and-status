@@ -1,11 +1,13 @@
 'use client';
 
 import { use, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { DashboardLayout } from '@/components/layout';
 import { Order, Customer, Measurement, Payment } from '@/lib/types';
 import styles from '@/styles/components/order-detail.module.css';
+import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Button, Modal } from '@/components/ui';
 import PaymentForm from '@/components/orders/PaymentForm';
@@ -13,6 +15,7 @@ import StatusUpdateForm from '@/components/orders/StatusUpdateForm';
 import DateUpdateForm from '@/components/orders/DateUpdateForm';
 import { db } from '@/lib/firebase';
 import { addDoc, collection, doc, serverTimestamp, updateDoc, Timestamp, deleteDoc, getDocs, query, where } from 'firebase/firestore';
+import { DollarSign, Calendar, User, Scissors, TrendingUp, AlertCircle, CheckCircle, Clock } from 'react-feather';
 
 interface OrderDetailPageProps {
     params: Promise<{ id: string }>;
@@ -21,6 +24,7 @@ interface OrderDetailPageProps {
 const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
     const { id } = use(params);
     const { user, userProfile } = useAuth();
+    const router = useRouter();
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
@@ -67,14 +71,31 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
     const userCurrency = userProfile?.defaultCurrency || 'NGN';
 
     const totalPaid = useMemo(() => {
-        // Only count payments from the payments collection
-        // Initial payments are now properly stored as payment records
         return payments?.reduce((acc, p) => acc + p.amount, 0) || 0;
     }, [payments]);
 
     const balance = useMemo(() => {
         return (order?.totalCost || order?.materialCost || 0) - totalPaid;
     }, [order, totalPaid]);
+
+    // Calculate order statistics for overview cards
+    const orderStats = useMemo(() => {
+        if (!order) return null;
+
+        const totalCost = order.totalCost || order.materialCost || 0;
+        const paymentCount = payments?.length || 0;
+        const daysSinceCreated = order.createdAt ?
+            Math.floor((Date.now() - order.createdAt.toDate().getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
+        return {
+            totalCost,
+            totalPaid,
+            balance,
+            paymentCount,
+            daysSinceCreated,
+            isOverdue: balance > 0 && daysSinceCreated > 30,
+        };
+    }, [order, payments, totalPaid, balance]);
 
     const isLoading = orderLoading || (order && (customerLoading || measurementLoading || paymentsLoading));
 
@@ -210,7 +231,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                 query(
                     paymentsQuery,
                     where('orderId', '==', order.id),
-                    where('userId', '==', user.uid) // Add user filter for security rules
+                    where('userId', '==', user.uid)
                 )
             );
 
@@ -224,10 +245,9 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
             await deleteDoc(doc(db, 'orders', order.id));
 
             // Redirect to orders list
-            window.location.href = '/orders';
+            router.push('/orders');
         } catch (error) {
             console.error('Error deleting order:', error);
-            // Show user-friendly error message
             alert('Failed to delete order. Please try again.');
         } finally {
             setIsSaving(false);
@@ -235,10 +255,60 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
     };
 
     if (isLoading) {
-        // TODO: Replace with a proper skeleton loader
         return (
             <DashboardLayout title="Loading Order...">
-                <p>Loading...</p>
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Order Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className={dashboardStyles.overviewCard}>
+                                <div className={dashboardStyles.cardHeader}>
+                                    <div
+                                        className={dashboardStyles.cardIcon}
+                                        style={{
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                            backgroundColor: 'var(--neutral-100)'
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            height: '16px',
+                                            width: '80px',
+                                            backgroundColor: 'var(--neutral-100)',
+                                            borderRadius: 'var(--radius-md)',
+                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                        }}
+                                    />
+                                </div>
+                                <div className={dashboardStyles.cardStats}>
+                                    {[...Array(2)].map((_, j) => (
+                                        <div key={j} className={dashboardStyles.statItem}>
+                                            <div
+                                                style={{
+                                                    height: '24px',
+                                                    width: '60px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    marginBottom: '4px',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                            <div
+                                                style={{
+                                                    height: '12px',
+                                                    width: '80px',
+                                                    backgroundColor: 'var(--neutral-100)',
+                                                    borderRadius: 'var(--radius-md)',
+                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </DashboardLayout>
         );
     }
@@ -246,13 +316,112 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
     if (!order) {
         return (
             <DashboardLayout title="Order Not Found">
-                <p>The requested order could not be found.</p>
+                <div style={{ textAlign: 'center', padding: 'var(--space-8)' }}>
+                    <p>The requested order could not be found.</p>
+                </div>
             </DashboardLayout>
         );
     }
 
     return (
-        <DashboardLayout title={`Order #${id.substring(0, 6)}`} breadcrumb={`Orders / Order #${id.substring(0, 6)}`}>
+        <DashboardLayout title={`Order #${id.substring(0, 6)}`} breadcrumb={`Order #${id.substring(0, 6)}`}>
+            {/* Order Overview Section */}
+            {orderStats && (
+                <div className={dashboardStyles.overviewSection}>
+                    <div className={dashboardStyles.sectionTitle}>Order Overview</div>
+                    <div className={dashboardStyles.overviewCards}>
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <DollarSign size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Finances</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(orderStats.totalCost, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Total Cost</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(orderStats.totalPaid, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Total Paid</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <TrendingUp size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Balance</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(orderStats.balance, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Outstanding</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{orderStats.paymentCount}</div>
+                                    <div className={dashboardStyles.statText}>Payments Made</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
+                            <div className={dashboardStyles.cardHeader}>
+                                <div className={dashboardStyles.cardIcon}>
+                                    <Calendar size={18} />
+                                </div>
+                                <span className={dashboardStyles.cardTitle}>Timeline</span>
+                            </div>
+                            <div className={dashboardStyles.cardStats} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>{orderStats.daysSinceCreated}</div>
+                                    <div className={dashboardStyles.statText}>Days Since Created</div>
+                                </div>
+                                <div className={dashboardStyles.statItem}>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {order.fittingDate ? formatDate(order.fittingDate) : 'Not set'}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Fitting Date</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Outstanding Balance Alert */}
+            {orderStats && orderStats.balance > 0 && (
+                <div className={dashboardStyles.alertCard}>
+                    <div className={dashboardStyles.alertIcon}>
+                        <AlertCircle size={16} />
+                    </div>
+                    <div className={dashboardStyles.alertContent}>
+                        <span className={dashboardStyles.alertTitle}>
+                            {orderStats.isOverdue ? 'Overdue Payment' : 'Outstanding Balance'}
+                        </span>
+                        <span className={dashboardStyles.alertAmount}>
+                            {formatCurrency(orderStats.balance, userCurrency)}
+                        </span>
+                    </div>
+                    <button
+                        className={dashboardStyles.alertAction}
+                        onClick={() => setIsPaymentModalOpen(true)}
+                    >
+                        Add Payment
+                    </button>
+                </div>
+            )}
+
+            {/* Main Content Grid */}
             <div className={styles.grid}>
                 <main className={styles.mainContent}>
                     {/* Customer & Order Details Card */}
@@ -318,7 +487,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                     {/* Payment Summary Card */}
                     <div className={styles.card}>
                         <div className={styles.cardHeader}>
-                            <h2 className={styles.cardTitle}>Finances</h2>
+                            <h2 className={styles.cardTitle}>Payment History</h2>
                         </div>
 
                         <ul className={styles.paymentHistory}>
@@ -377,14 +546,29 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                     {/* Actions Card */}
                     <div className={styles.card}>
                         <div className={styles.cardHeader}>
-                            <h2 className={styles.cardTitle}>Actions</h2>
+                            <h2 className={styles.cardTitle}>Quick Actions</h2>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                            <Button variant="secondary" onClick={() => setIsStatusModalOpen(true)} disabled={order.collected}>Update Status</Button>
-                            <Button variant="outline" onClick={() => openDateModal('fitting')} disabled={order.collected}>Set Fitting Date</Button>
-                            <Button variant="outline" onClick={() => openDateModal('collection')} disabled={order.collected}>Set Collection Date</Button>
-                            <Button variant="success" onClick={() => setIsCollectedModalOpen(true)} disabled={order.collected}>Mark as Collected</Button>
-                            <Button variant="danger" onClick={() => setIsDeleteOrderModalOpen(true)}>Delete Order</Button>
+                            <Button variant="secondary" onClick={() => setIsStatusModalOpen(true)} disabled={order.collected}>
+                                <Clock size={16} style={{ marginRight: 'var(--space-2)' }} />
+                                Update Status
+                            </Button>
+                            <Button variant="outline" onClick={() => openDateModal('fitting')} disabled={order.collected}>
+                                <Calendar size={16} style={{ marginRight: 'var(--space-2)' }} />
+                                Set Fitting Date
+                            </Button>
+                            <Button variant="outline" onClick={() => openDateModal('collection')} disabled={order.collected}>
+                                <Calendar size={16} style={{ marginRight: 'var(--space-2)' }} />
+                                Set Collection Date
+                            </Button>
+                            <Button variant="success" onClick={() => setIsCollectedModalOpen(true)} disabled={order.collected}>
+                                <CheckCircle size={16} style={{ marginRight: 'var(--space-2)' }} />
+                                Mark as Collected
+                            </Button>
+                            <Button variant="danger" onClick={() => setIsDeleteOrderModalOpen(true)}>
+                                <Scissors size={16} style={{ marginRight: 'var(--space-2)' }} />
+                                Delete Order
+                            </Button>
                         </div>
                     </div>
                 </aside>

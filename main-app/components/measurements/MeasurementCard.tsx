@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit, Trash, Copy } from 'react-feather';
+import { Edit, Trash, Copy, Eye } from 'react-feather';
 import styles from '@/styles/components/measurement-card.module.css';
 import { ActionsMenu } from '@/components/ui';
 import { Measurement } from '@/lib/types';
@@ -10,6 +10,7 @@ interface MeasurementCardProps {
     onEdit: (measurement: Measurement) => void;
     onDelete: (id: string) => void;
     onCopy: (measurement: Measurement) => void;
+    onView: (measurement: Measurement) => void;
 }
 
 const MeasurementCard = ({
@@ -17,6 +18,7 @@ const MeasurementCard = ({
     onEdit,
     onDelete,
     onCopy,
+    onView,
 }: MeasurementCardProps) => {
     const formatDate = (date: Date | undefined) => {
         const options: Intl.DateTimeFormatOptions = {
@@ -36,6 +38,11 @@ const MeasurementCard = ({
 
     const menuItems = [
         {
+            label: 'View Details',
+            icon: <Eye />,
+            onClick: () => onView(measurement),
+        },
+        {
             label: 'Edit',
             icon: <Edit />,
             onClick: () => onEdit(measurement),
@@ -53,8 +60,16 @@ const MeasurementCard = ({
         },
     ];
 
+    // Get a preview of measurements (first 3)
+    const measurementPreview = Object.entries(measurement.values).slice(0, 3);
+    const totalMeasurements = Object.keys(measurement.values).length;
+
     return (
-        <div className={styles.measurementCard}>
+        <div
+            className={styles.measurementCard}
+            onClick={() => onView(measurement)}
+            style={{ cursor: 'pointer' }}
+        >
             <div className={styles.cardHeader}>
                 <div className={styles.headerInfo}>
                     <h3 className={styles.garmentType}>{measurement.garmentType}</h3>
@@ -62,29 +77,48 @@ const MeasurementCard = ({
                         for {measurement.customerName || 'N/A'}
                     </p>
                 </div>
-                <span className={styles.genderTag}>{measurement.gender}</span>
+                <span className={styles.genderTag} data-gender={measurement.gender}>
+                    {measurement.gender === 'women' ? 'Female' : 'Male'}
+                </span>
             </div>
-            <div className={styles.valuesGrid}>
-                {Object.entries(measurement.values).map(([key, value]) => (
-                    <div key={key} className={styles.measurementItem}>
-                        <span className={styles.measurementLabel}>
-                            {formatLabel(key)}
-                        </span>
-                        <span className={styles.measurementValue}>
-                            {value}
-                            <span className={styles.unit}>{unit}</span>
-                        </span>
-                    </div>
-                ))}
+
+            <div className={styles.previewSection}>
+                <div className={styles.previewTitle}>
+                    <span>Measurement Preview</span>
+                    <span className={styles.measurementCount}>
+                        {totalMeasurements} measurements
+                    </span>
+                </div>
+                <div className={styles.previewGrid}>
+                    {measurementPreview.map(([key, value]) => (
+                        <div key={key} className={styles.previewItem}>
+                            <span className={styles.previewLabel}>
+                                {formatLabel(key)}
+                            </span>
+                            <span className={styles.previewValue}>
+                                {value}
+                                <span className={styles.unit}>{unit}</span>
+                            </span>
+                        </div>
+                    ))}
+                    {totalMeasurements > 3 && (
+                        <div className={styles.moreIndicator}>
+                            +{totalMeasurements - 3} more
+                        </div>
+                    )}
+                </div>
             </div>
+
             <div className={styles.cardFooter}>
-                <span>
+                <span className={styles.dateSpan}>
                     Created on{' '}
                     {measurement.createdAt
                         ? formatDate(measurement.createdAt.toDate())
                         : '...'}
                 </span>
-                <ActionsMenu items={menuItems} />
+                <div onClick={(e) => e.stopPropagation()}>
+                    <ActionsMenu items={menuItems} />
+                </div>
             </div>
         </div>
     );

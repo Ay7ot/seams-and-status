@@ -44,7 +44,29 @@ export const useTheme = (): UseThemeReturn => {
         setThemeState(newTheme);
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+        // Notify other tabs / components
+        window.dispatchEvent(new CustomEvent('theme-change', { detail: newTheme }));
     };
+
+    // Listen for theme change events (from other components or tabs)
+    useEffect(() => {
+        const handleThemeChange = (e: Event) => {
+            const customEvent = e as CustomEvent<Theme>;
+            if (customEvent.detail) {
+                setThemeState(customEvent.detail);
+            }
+        };
+        window.addEventListener('theme-change', handleThemeChange);
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme' && e.newValue) {
+                setThemeState(e.newValue as Theme);
+                document.documentElement.setAttribute('data-theme', e.newValue);
+            }
+        });
+        return () => {
+            window.removeEventListener('theme-change', handleThemeChange);
+        };
+    }, []);
 
     const toggleTheme = () => {
         const newTheme: Theme = theme === 'dark' ? 'light' : 'dark';

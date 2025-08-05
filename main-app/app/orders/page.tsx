@@ -1,17 +1,19 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus, Search } from 'react-feather';
+import { Plus, Search, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle } from 'react-feather';
 import { Button, Modal } from '@/components/ui';
 import OrderCard from '@/components/orders/OrderCard';
 import OrderForm from '@/components/orders/OrderForm';
-import { Order, Customer } from '@/lib/types';
-import styles from '@/styles/components/measurement-card.module.css'; // Re-using for grid layout
+import { Order, Customer, Payment } from '@/lib/types';
+import styles from '@/styles/components/measurement-card.module.css';
 import modalStyles from '@/styles/components/modal.module.css';
-import formStyles from '@/styles/components/auth.module.css'; // For search input
+import formStyles from '@/styles/components/auth.module.css';
+import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -24,7 +26,7 @@ import {
     query,
     where,
 } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/utils';
 
 const OrdersPage = () => {
     const { user, userProfile } = useAuth();
@@ -44,6 +46,12 @@ const OrdersPage = () => {
 
     const { data: customers } = useFirestoreQuery<Customer>({
         path: 'customers',
+        constraints: user ? [{ type: 'where', field: 'userId', operator: '==', value: user.uid }] : [],
+        listen: true,
+    });
+
+    const { data: payments } = useFirestoreQuery<Payment>({
+        path: 'payments',
         constraints: user ? [{ type: 'where', field: 'userId', operator: '==', value: user.uid }] : [],
         listen: true,
     });
@@ -68,6 +76,50 @@ const OrdersPage = () => {
                 order.status.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [ordersWithCustomerNames, searchTerm]);
+
+    // Calculate order statistics
+    const orderStats = useMemo(() => {
+        if (!orders || !payments) return null;
+
+        const totalOrders = orders.length;
+        const totalRevenue = orders.reduce((acc, order) => acc + (order.totalCost || order.materialCost), 0);
+        const totalPayments = payments.reduce((acc, payment) => acc + payment.amount, 0) +
+            orders.reduce((acc, order) => acc + (order.initialPayment || 0), 0);
+
+        const outstandingBalance = Math.max(0, orders.reduce((acc, order) => {
+            const orderCost = order.totalCost || order.materialCost;
+            const orderPayments = payments.filter(p => p.orderId === order.id).reduce((sum, p) => sum + p.amount, 0);
+            const totalPaidIncludingInitial = orderPayments + (order.initialPayment || 0);
+            const outstanding = orderCost - totalPaidIncludingInitial;
+            return acc + Math.max(0, outstanding);
+        }, 0));
+
+        const statusCounts = orders.reduce((acc, order) => {
+            acc[order.status] = (acc[order.status] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const recentOrders = orders.filter(order => {
+            if (!order.createdAt) return false;
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return order.createdAt.toDate() > thirtyDaysAgo;
+        }).length;
+
+        return {
+            totalOrders,
+            totalRevenue,
+            totalPayments,
+            outstandingBalance,
+            recentOrders,
+            statusCounts: {
+                New: statusCounts['New'] || 0,
+                'In Progress': statusCounts['In Progress'] || 0,
+                'Ready for Fitting': statusCounts['Ready for Fitting'] || 0,
+                Completed: statusCounts['Completed'] || 0,
+            },
+        };
+    }, [orders, payments]);
 
     const handleAddNew = () => {
         setEditingOrder(null);
@@ -163,6 +215,7 @@ const OrdersPage = () => {
 
     return (
         <DashboardLayout title="Orders" breadcrumb="Order Management">
+            {/* Search and Add Section */}
             <div
                 style={{
                     display: 'flex',
@@ -201,6 +254,30 @@ const OrdersPage = () => {
 
 
 
+            {/* Outstanding Balance Alert */}
+            {orderStats && orderStats.outstandingBalance > 0 && (
+                <div className={dashboardStyles.alertCard}>
+                    <div className={dashboardStyles.alertIcon}>
+                        <AlertCircle size={16} />
+                    </div>
+                    <div className={dashboardStyles.alertContent}>
+                        <span className={dashboardStyles.alertTitle}>Outstanding Balance</span>
+                        <span className={dashboardStyles.alertAmount}>
+                            {formatCurrency(orderStats.outstandingBalance, userCurrency)}
+                        </span>
+                    </div>
+                    <button
+                        className={dashboardStyles.alertAction}
+                        onClick={() => router.push('/orders')}
+                    >
+                        View Orders
+                    </button>
+                </div>
+            )}
+
+
+
+            {/* Orders Grid */}
             {loading && (
                 <div className={styles.measurementGrid}>
                     {[...Array(4)].map((_, i) => (
@@ -231,27 +308,48 @@ const OrdersPage = () => {
                         padding: 'var(--space-8)',
                         backgroundColor: 'var(--neutral-0)',
                         borderRadius: 'var(--radius-xl)',
+                        border: '1px solid var(--neutral-200)',
+                        boxShadow: 'var(--shadow-sm)',
                     }}
                 >
+                    <Scissors
+                        size={48}
+                        style={{
+                            color: 'var(--neutral-400)',
+                            marginBottom: 'var(--space-4)',
+                        }}
+                    />
                     <h2
                         style={{
                             fontSize: 'var(--text-xl)',
                             fontWeight: 'var(--font-semibold)',
                             marginBottom: 'var(--space-4)',
+                            color: 'var(--neutral-900)',
                         }}
                     >
                         {searchTerm ? 'No Orders Found' : 'No Orders Yet'}
                     </h2>
-                    <p style={{ color: 'var(--neutral-600)' }}>
+                    <p
+                        style={{
+                            fontSize: 'var(--text-base)',
+                            color: 'var(--neutral-600)',
+                            marginBottom: 'var(--space-6)',
+                            lineHeight: 'var(--leading-relaxed)',
+                        }}
+                    >
                         {searchTerm
-                            ? 'Try adjusting your search terms.'
-                            : 'Create your first order to get started.'
+                            ? 'Try adjusting your search terms or clear the search to see all orders.'
+                            : 'Create your first order to start managing your tailoring business.'
                         }
                     </p>
+                    {!searchTerm && (
+                        <Button onClick={handleAddNew}>
+                            <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
+                            Create First Order
+                        </Button>
+                    )}
                 </div>
             )}
-
-            {/* Empty state to be added here */}
 
             <Modal
                 isOpen={isModalOpen}

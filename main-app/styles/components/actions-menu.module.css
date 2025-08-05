@@ -34,7 +34,7 @@
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--neutral-200);
   width: 160px;
-  z-index: var(--z-dropdown);
+  z-index: 9999;
   padding: var(--space-2);
   opacity: 0;
   transform: translateY(-10px);

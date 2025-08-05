@@ -35,6 +35,8 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
         null
     );
     const [isSaving, setIsSaving] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewingMeasurement, setViewingMeasurement] = useState<Measurement | null>(null);
 
     const { data: customerData, loading: customerLoading } =
         useFirestoreQuery<Customer>({
@@ -103,6 +105,15 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
         }
     };
 
+    const handleView = (measurement: Measurement) => {
+        setViewingMeasurement(measurement);
+        setIsViewModalOpen(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setIsViewModalOpen(false);
+        setViewingMeasurement(null);
+    };
     const handleSaveMeasurement = async (data: Partial<Measurement>) => {
         if (!user) return;
         setIsSaving(true);
@@ -149,7 +160,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
     return (
         <DashboardLayout
             title={customer.name}
-            breadcrumb={`Customers / ${customer.name}`}
+            breadcrumb={`${customer.name}`}
         >
             {/* <div className={customerStyles.detailHeader}>
                 <div>
@@ -179,6 +190,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                                 onEdit={handleEdit}
                                 onCopy={handleCopy}
                                 onDelete={handleDelete}
+                                onView={handleView}
                             />
                         ))}
                     </div>
@@ -223,6 +235,19 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                         Delete
                     </Button>
                 </div>
+            </Modal>
+            <Modal
+                isOpen={isViewModalOpen}
+                onClose={handleCloseViewModal}
+                title="View Measurement"
+            >
+                <MeasurementForm
+                    customers={[{ label: customer.name, value: customer.id }]}
+                    defaultValues={viewingMeasurement || { customerId: customer.id }}
+                    isSaving={isSaving}
+                    onSave={handleSaveMeasurement}
+                    onClose={handleCloseViewModal}
+                />
             </Modal>
         </DashboardLayout>
     );
