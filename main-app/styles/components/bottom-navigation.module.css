@@ -60,7 +60,7 @@
 }
 
 /* Active indicator */
-.navItem.active::after {
+/* .navItem.active::after {
   content: "";
   position: absolute;
   bottom: 4px;
@@ -68,7 +68,7 @@
   height: 3px;
   background-color: var(--primary-600);
   border-radius: var(--radius-full);
-}
+} */
 
 .navIcon {
   width: 24px;
