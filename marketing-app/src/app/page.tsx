@@ -90,12 +90,11 @@ export default function Home() {
           <section className={`${styles.section} ${styles.hero}`}>
             <div className={styles.heroText}>
               <h1>
-                Ditch the Pen and Paper.
-                Modernize Your Tailoring Business.
+                Take Your Tailoring Business Digital.
+                Work Smarter, Not Harder.
               </h1>
               <p>
-                The simple, modern way for tailors to manage customers,
-                measurements, orders, and payments. All in one place.
+                Seamlessly manage your customers, measurements, orders, and payments—all in one secure, easy-to-use platform designed for modern tailors.
               </p>
               <div className={styles.heroButtons}>
                 <a href={`${mainAppUrl}/signup`} className={`${styles.button} ${styles.primaryButton} ${styles.largeButton}`} target="_blank" rel="noopener noreferrer">
