@@ -66,8 +66,8 @@ const DashboardPage = () => {
         const totalOrders = orders.length;
         const totalCustomers = customers.length;
         const totalRevenue = orders.reduce((acc, order) => acc + (order.totalCost || order.materialCost), 0);
-        const totalPayments = payments.reduce((acc, payment) => acc + payment.amount, 0) +
-            orders.reduce((acc, order) => acc + (order.initialPayment || 0), 0);
+        // Initial payments are already stored as separate payment records when orders are created.
+        const totalPayments = payments.reduce((acc, payment) => acc + payment.amount, 0);
 
         const outstandingBalance = Math.max(0, orders.reduce((acc, order) => {
             const orderCost = order.totalCost || order.materialCost;

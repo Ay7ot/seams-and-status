@@ -5,7 +5,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { Customer, Measurement, Order } from '@/lib/types';
-import { Button, Select, DatePicker } from '@/components/ui';
+import { Button, Select, DatePicker, FormattedNumberInput } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import formStyles from '@/styles/components/order-form.module.css';
 import { Timestamp } from 'firebase/firestore';
@@ -140,33 +140,39 @@ const OrderForm = ({ onSave, onClose, isSaving, defaultValues }: OrderFormProps)
             <div className={formStyles.grid}>
                 <div className={styles.formGroup}>
                     <label htmlFor="materialCost" className={styles.label}>Material Cost</label>
-                    <input
-                        id="materialCost"
-                        type="number"
-                        step="0.01"
-                        {...register('materialCost', {
-                            required: 'Material cost is required',
-                            valueAsNumber: true,
-                        })}
-                        className={`${styles.input} ${errors.materialCost ? styles.inputError : ''}`}
-                        placeholder="0.00"
-                        disabled={isSaving}
+                    <Controller
+                        name="materialCost"
+                        control={control}
+                        rules={{ required: 'Material cost is required', min: 0.01 }}
+                        render={({ field }) => (
+                            <FormattedNumberInput
+                                id="materialCost"
+                                disabled={isSaving}
+                                placeholder="0.00"
+                                className={`${styles.input} ${errors.materialCost ? styles.inputError : ''}`}
+                                value={field.value as number | undefined}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                     {errors.materialCost && <p className={styles.errorMessage}>{errors.materialCost.message as string}</p>}
                 </div>
                 <div className={styles.formGroup}>
                     <label htmlFor="totalCost" className={styles.label}>Total Cost</label>
-                    <input
-                        id="totalCost"
-                        type="number"
-                        step="0.01"
-                        {...register('totalCost', {
-                            required: 'Total cost is required',
-                            valueAsNumber: true,
-                        })}
-                        className={`${styles.input} ${errors.totalCost ? styles.inputError : ''}`}
-                        placeholder="0.00"
-                        disabled={isSaving}
+                    <Controller
+                        name="totalCost"
+                        control={control}
+                        rules={{ required: 'Total cost is required', min: 0.01 }}
+                        render={({ field }) => (
+                            <FormattedNumberInput
+                                id="totalCost"
+                                disabled={isSaving}
+                                placeholder="0.00"
+                                className={`${styles.input} ${errors.totalCost ? styles.inputError : ''}`}
+                                value={field.value as number | undefined}
+                                onChange={field.onChange}
+                            />
+                        )}
                     />
                     {errors.totalCost && <p className={styles.errorMessage}>{errors.totalCost.message as string}</p>}
                 </div>
@@ -183,17 +189,20 @@ const OrderForm = ({ onSave, onClose, isSaving, defaultValues }: OrderFormProps)
 
             <div className={styles.formGroup}>
                 <label htmlFor="initialPayment" className={styles.label}>Initial Payment (Deposit)</label>
-                <input
-                    id="initialPayment"
-                    type="number"
-                    step="0.01"
-                    {...register('initialPayment', {
-                        required: 'Initial payment is required',
-                        valueAsNumber: true,
-                    })}
-                    className={`${styles.input} ${errors.initialPayment ? styles.inputError : ''}`}
-                    placeholder="0.00"
-                    disabled={isSaving}
+                <Controller
+                    name="initialPayment"
+                    control={control}
+                    rules={{ required: 'Initial payment is required', min: 0 }}
+                    render={({ field }) => (
+                        <FormattedNumberInput
+                            id="initialPayment"
+                            disabled={isSaving}
+                            placeholder="0.00"
+                            className={`${styles.input} ${errors.initialPayment ? styles.inputError : ''}`}
+                            value={field.value as number | undefined}
+                            onChange={field.onChange}
+                        />
+                    )}
                 />
                 {errors.initialPayment && <p className={styles.errorMessage}>{errors.initialPayment.message as string}</p>}
             </div>

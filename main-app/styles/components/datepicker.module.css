@@ -92,6 +92,27 @@
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   min-width: 320px;
+  position: relative;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  left: 20px;
+}
+
+.panel.positionedAbove::before {
+  border-top: 8px solid var(--neutral-200);
+  bottom: -8px;
+}
+
+.panel.positionedBelow::before {
+  border-bottom: 8px solid var(--neutral-200);
+  top: -8px;
 }
 
 .header {

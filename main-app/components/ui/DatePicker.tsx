@@ -32,6 +32,7 @@ const DatePicker = ({
     const [currentMonth, setCurrentMonth] = useState(selected ? startOfMonth(selected) : startOfMonth(new Date()));
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
+    const [isPositionedAbove, setIsPositionedAbove] = useState(false);
     const triggerRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
 
@@ -75,11 +76,35 @@ const DatePicker = ({
     useEffect(() => {
         if (isOpen && triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
+            const panelHeight = 320; // Approximate height of the date picker panel
+            const viewportHeight = window.innerHeight;
+            const scrollY = window.scrollY;
+
+            // Check if there's enough space below
+            const spaceBelow = viewportHeight - rect.bottom;
+            const spaceAbove = rect.top;
+
+            // Position above if there's not enough space below but enough space above
+            // Also position above if there's more space above than below
+            const shouldPositionAbove = (spaceBelow < panelHeight && spaceAbove > panelHeight) ||
+                (spaceAbove > spaceBelow && spaceAbove > panelHeight);
+
+            setIsPositionedAbove(shouldPositionAbove);
             setPosition({
-                top: rect.bottom + window.scrollY + 8,
+                top: shouldPositionAbove
+                    ? rect.top + scrollY - panelHeight - 8
+                    : rect.bottom + scrollY + 8,
                 left: rect.left + window.scrollX,
                 width: rect.width
             });
+
+            // Ensure the panel is visible by scrolling if necessary
+            if (shouldPositionAbove && rect.top < panelHeight) {
+                window.scrollTo({
+                    top: scrollY - (panelHeight - rect.top + 20),
+                    behavior: 'smooth'
+                });
+            }
         }
     }, [isOpen]);
 
@@ -143,7 +168,7 @@ const DatePicker = ({
             {isOpen && createPortal(
                 <div
                     ref={panelRef}
-                    className={styles.panel}
+                    className={`${styles.panel} ${isPositionedAbove ? styles.positionedAbove : styles.positionedBelow}`}
                     style={{
                         position: 'absolute',
                         top: position.top,

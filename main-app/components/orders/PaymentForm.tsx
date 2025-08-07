@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { Button, DatePicker } from '@/components/ui';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { Button, DatePicker, FormattedNumberInput } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import { Payment } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
@@ -22,6 +22,7 @@ const PaymentForm = ({ onSave, onClose, isSaving, defaultValues }: PaymentFormPr
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
     } = useForm<Partial<Payment>>({
         defaultValues: {
@@ -42,18 +43,23 @@ const PaymentForm = ({ onSave, onClose, isSaving, defaultValues }: PaymentFormPr
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
             <div className={styles.formGroup}>
                 <label htmlFor="amount" className={styles.label}>Payment Amount</label>
-                <input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    {...register('amount', {
+                <Controller
+                    name="amount"
+                    control={control}
+                    rules={{
                         required: 'Amount is required',
-                        valueAsNumber: true,
                         min: { value: 0.01, message: 'Amount must be positive' },
-                    })}
-                    className={`${styles.input} ${errors.amount ? styles.inputError : ''}`}
-                    placeholder="0.00"
-                    disabled={isSaving}
+                    }}
+                    render={({ field }) => (
+                        <FormattedNumberInput
+                            id="amount"
+                            disabled={isSaving}
+                            placeholder="0.00"
+                            className={`${styles.input} ${errors.amount ? styles.inputError : ''}`}
+                            value={field.value as number | undefined}
+                            onChange={field.onChange}
+                        />
+                    )}
                 />
                 {errors.amount && <p className={styles.errorMessage}>{errors.amount.message as string}</p>}
             </div>
