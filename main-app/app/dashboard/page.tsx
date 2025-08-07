@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Order, Customer, Payment } from '@/lib/types';
+import { Order, Customer, Payment, Measurement } from '@/lib/types';
 import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { Button } from '@/components/ui';
 import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar, Settings } from 'react-feather';
@@ -33,6 +33,12 @@ const DashboardPage = () => {
         listen: true,
     });
 
+    const { data: measurements, loading: measurementsLoading } = useFirestoreQuery<Measurement>({
+        path: 'measurements',
+        constraints: user ? [{ type: 'where', field: 'userId', operator: '==', value: user.uid }] : [],
+        listen: true,
+    });
+
     const userCurrency = userProfile?.defaultCurrency || 'NGN';
 
     const ordersWithCustomerNames = useMemo(() => {
@@ -44,12 +50,21 @@ const DashboardPage = () => {
         }));
     }, [orders, customers]);
 
+    const measurementsWithCustomerNames = useMemo(() => {
+        if (!measurements || !customers) return [];
+        const customerMap = new Map(customers.map((c) => [c.id, c.name]));
+        return measurements.map((m) => ({
+            ...m,
+            customerName: customerMap.get(m.customerId) || 'Unknown Customer',
+        }));
+    }, [measurements, customers]);
+
     // Calculate statistics
     const stats = useMemo(() => {
-        if (!orders || !payments) return null;
+        if (!orders || !payments || !customers) return null;
 
         const totalOrders = orders.length;
-        const totalCustomers = customers?.length || 0;
+        const totalCustomers = customers.length;
         const totalRevenue = orders.reduce((acc, order) => acc + (order.totalCost || order.materialCost), 0);
         const totalPayments = payments.reduce((acc, payment) => acc + payment.amount, 0) +
             orders.reduce((acc, order) => acc + (order.initialPayment || 0), 0);
@@ -82,6 +97,34 @@ const DashboardPage = () => {
         };
     }, [orders, payments, customers]);
 
+    // Calculate measurement statistics
+    const measurementStats = useMemo(() => {
+        if (!measurementsWithCustomerNames) return null;
+
+        const total = measurementsWithCustomerNames.length;
+        const recent = measurementsWithCustomerNames.filter(m => {
+            const createdAt = m.createdAt?.toDate();
+            if (!createdAt) return false;
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return createdAt > thirtyDaysAgo;
+        }).length;
+
+        const genderDistribution = measurementsWithCustomerNames.reduce((acc, m) => {
+            acc[m.gender] = (acc[m.gender] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const uniqueCustomers = new Set(measurementsWithCustomerNames.map(m => m.customerId)).size;
+
+        return {
+            total,
+            recent,
+            genderDistribution,
+            uniqueCustomers,
+        };
+    }, [measurementsWithCustomerNames]);
+
     // Get recent orders for quick view
     useMemo(() => {
         if (!ordersWithCustomerNames) return [];
@@ -96,10 +139,10 @@ const DashboardPage = () => {
     }, [ordersWithCustomerNames]);
 
     // Improved loading state logic - only consider data loading states since auth is handled above
-    const isDataLoading = ordersLoading || customersLoading || paymentsLoading;
+    const isDataLoading = ordersLoading || customersLoading || paymentsLoading || measurementsLoading;
 
     // Additional check: if auth is complete but we have no data yet, still show loading
-    const hasInitialData = orders !== null && customers !== null && payments !== null;
+    const hasInitialData = orders !== null && customers !== null && payments !== null && measurements !== null;
     const shouldShowLoading = isDataLoading || (!isDataLoading && userProfile && !hasInitialData);
 
     // Loading state for auth - show loading while auth is loading OR while user exists but profile is not loaded yet
@@ -258,6 +301,53 @@ const DashboardPage = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Measurements Overview */}
+                        {measurementStats && (
+                            <>
+                                <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
+                                    <div className={dashboardStyles.cardHeader}>
+                                        <div className={dashboardStyles.cardIcon}>
+                                            <Scissors size={18} />
+                                        </div>
+                                        <span className={dashboardStyles.cardTitle}>Measurements</span>
+                                    </div>
+                                    <div className={dashboardStyles.cardStats}>
+                                        <div className={dashboardStyles.statItem}>
+                                            <div className={dashboardStyles.statNumber}>{measurementStats.total}</div>
+                                            <div className={dashboardStyles.statText}>Total</div>
+                                        </div>
+                                        <div className={dashboardStyles.statItem}>
+                                            <div className={dashboardStyles.statNumber}>{measurementStats.recent}</div>
+                                            <div className={dashboardStyles.statText}>Last 30 Days</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
+                                    <div className={dashboardStyles.cardHeader}>
+                                        <div className={dashboardStyles.cardIcon}>
+                                            <Users size={18} />
+                                        </div>
+                                        <span className={dashboardStyles.cardTitle}>Gender Distribution</span>
+                                    </div>
+                                    <div className={dashboardStyles.cardStats} style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                                        <div className={dashboardStyles.statItem}>
+                                            <div className={dashboardStyles.statNumber}>
+                                                {measurementStats.genderDistribution.women || 0}
+                                            </div>
+                                            <div className={dashboardStyles.statText}>Women</div>
+                                        </div>
+                                        <div className={dashboardStyles.statItem}>
+                                            <div className={dashboardStyles.statNumber}>
+                                                {measurementStats.genderDistribution.men || 0}
+                                            </div>
+                                            <div className={dashboardStyles.statText}>Men</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

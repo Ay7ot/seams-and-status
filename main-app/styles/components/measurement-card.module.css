@@ -16,14 +16,14 @@
 .measurementCard {
   background: linear-gradient(
     135deg,
-    var(--neutral-800) 0%,
-    var(--neutral-700) 100%
+    var(--neutral-0) 0%,
+    var(--neutral-50) 100%
   );
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
   padding: var(--space-6);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--neutral-100);
+  border: 1px solid var(--neutral-200);
   position: relative;
   overflow: visible;
 }
@@ -163,16 +163,16 @@
 }
 
 .previewItem {
-  background: var(--neutral-700);
+  background: var(--neutral-100);
   border-radius: var(--radius-lg);
   padding: var(--space-3);
-  border: 1px solid var(--neutral-600);
+  border: 1px solid var(--neutral-200);
   transition: all 0.2s ease;
   position: relative;
 }
 
 .previewItem:hover {
-  background: var(--neutral-600);
+  background: var(--neutral-200);
   border-color: var(--primary-400);
   transform: translateY(-1px);
 }
@@ -198,30 +198,30 @@
 }
 
 .moreIndicator {
-  background: var(--neutral-600);
+  background: var(--neutral-200);
   border-radius: var(--radius-lg);
   padding: var(--space-3);
-  border: 1px solid var(--neutral-500);
+  border: 1px solid var(--neutral-300);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: var(--neutral-300);
+  color: var(--neutral-600);
   text-align: center;
 }
 
 .measurementItem {
-  background: var(--neutral-700);
+  background: var(--neutral-100);
   border-radius: var(--radius-xl);
   padding: var(--space-4);
-  border: 1px solid var(--neutral-600);
+  border: 1px solid var(--neutral-200);
   transition: all 0.2s ease;
   position: relative;
 }
 
 .measurementItem:hover {
-  background: var(--neutral-600);
+  background: var(--neutral-200);
   border-color: var(--primary-400);
   transform: translateY(-1px);
 }
@@ -256,13 +256,13 @@
 .cardFooter {
   margin-top: var(--space-5);
   padding-top: var(--space-4);
-  border-top: 2px solid var(--neutral-600);
+  border-top: 2px solid var(--neutral-200);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: var(--text-xs);
-  color: var(--neutral-500);
-  background: var(--neutral-700);
+  color: var(--neutral-600);
+  background: var(--neutral-100);
   margin-left: calc(-1 * var(--space-6));
   margin-right: calc(-1 * var(--space-6));
   margin-bottom: calc(-1 * var(--space-6));
@@ -285,63 +285,101 @@
   opacity: 0.7;
 }
 
-/* Dark mode enhancements */
-@media (prefers-color-scheme: dark) {
-  .measurementCard {
-    background: linear-gradient(
-      135deg,
-      var(--neutral-0) 0%,
-      var(--neutral-25) 100%
-    );
-    border-color: var(--neutral-700);
-  }
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
 
-  .garmentType {
-    background: linear-gradient(
-      135deg,
-      var(--neutral-400) 0%,
-      var(--primary-400) 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.openButton {
+  background: linear-gradient(
+    135deg,
+    var(--primary-500) 0%,
+    var(--primary-600) 100%
+  );
+  color: var(--neutral-0);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
 
-  .measurementItem {
-    background: var(--neutral-25);
-    border-color: var(--neutral-100);
-  }
+.openButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(
+    135deg,
+    var(--primary-600) 0%,
+    var(--primary-700) 100%
+  );
+}
 
-  .measurementItem:hover {
-    background: var(--neutral-50);
-    border-color: var(--primary-200);
-  }
+.openButton:active {
+  transform: translateY(0);
+}
 
-  .previewItem {
-    background: var(--neutral-25);
-    border-color: var(--neutral-100);
-  }
+/* App theme support */
+[data-theme="dark"] .measurementCard {
+  background: linear-gradient(
+    135deg,
+    var(--neutral-0) 0%,
+    var(--neutral-25) 100%
+  );
+  border-color: var(--neutral-700);
+}
 
-  .previewItem:hover {
-    background: var(--neutral-50);
-    border-color: var(--primary-200);
-  }
+[data-theme="dark"] .garmentType {
+  background: linear-gradient(
+    135deg,
+    var(--neutral-400) 0%,
+    var(--primary-400) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  .previewLabel {
-    color: var(--neutral-500);
-  }
+[data-theme="dark"] .measurementItem {
+  background: var(--neutral-25);
+  border-color: var(--neutral-100);
+}
 
-  .previewValue {
-    color: var(--neutral-900);
-  }
+[data-theme="dark"] .measurementItem:hover {
+  background: var(--neutral-50);
+  border-color: var(--primary-200);
+}
 
-  .moreIndicator {
-    background: var(--neutral-50);
-    border-color: var(--neutral-200);
-    color: var(--neutral-600);
-  }
+[data-theme="dark"] .previewItem {
+  background: var(--neutral-25);
+  border-color: var(--neutral-100);
+}
 
-  .cardFooter {
-    background: var(--neutral-25);
-  }
+[data-theme="dark"] .previewItem:hover {
+  background: var(--neutral-50);
+  border-color: var(--primary-200);
+}
+
+[data-theme="dark"] .previewLabel {
+  color: var(--neutral-500);
+}
+
+[data-theme="dark"] .previewValue {
+  color: var(--neutral-900);
+}
+
+[data-theme="dark"] .moreIndicator {
+  background: var(--neutral-50);
+  border-color: var(--neutral-200);
+  color: var(--neutral-600);
+}
+
+[data-theme="dark"] .cardFooter {
+  background: var(--neutral-25);
 }

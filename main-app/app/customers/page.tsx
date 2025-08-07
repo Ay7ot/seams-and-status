@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus, Search, Edit, Trash, Users, UserPlus, UserCheck, Calendar } from 'react-feather';
+import { Plus, Search, Edit, Trash, Users, UserPlus } from 'react-feather';
 import { Button, Modal, ActionsMenu } from '@/components/ui';
 import CustomerForm, {
     CustomerFormData,
@@ -14,7 +14,6 @@ import CustomerCard from '@/components/customers/CustomerCard';
 import { Customer } from '@/lib/types';
 import styles from '@/styles/components/customer-card.module.css';
 import formStyles from '@/styles/components/auth.module.css';
-import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -52,29 +51,7 @@ const CustomersPage = () => {
         );
     }, [customers, searchTerm]);
 
-    // Calculate customer statistics
-    const customerStats = useMemo(() => {
-        if (!customers) return null;
 
-        const totalCustomers = customers.length;
-        const recentCustomers = customers.filter(customer => {
-            if (!customer.createdAt) return false;
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            return customer.createdAt.toDate() > thirtyDaysAgo;
-        }).length;
-
-        const genderStats = customers.reduce((acc, customer) => {
-            acc[customer.gender] = (acc[customer.gender] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-
-        return {
-            totalCustomers,
-            recentCustomers,
-            genderStats,
-        };
-    }, [customers]);
 
     const handleAddNew = () => {
         setEditingCustomer(null);
@@ -158,124 +135,14 @@ const CustomersPage = () => {
                         style={{ paddingLeft: 'var(--space-10)', width: '100%' }}
                     />
                 </div>
-                <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
-                    <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
-                    Add Customer
-                </Button>
+                {customers && customers.length > 0 && (
+                    <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
+                        <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
+                        Add Customer
+                    </Button>
+                )}
             </div>
-            {/* Business Overview Section */}
-            {loading ? (
-                <div className={dashboardStyles.overviewSection}>
-                    <div className={dashboardStyles.sectionTitle}>Customer Overview</div>
-                    <div className={dashboardStyles.overviewCards}>
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className={dashboardStyles.overviewCard}>
-                                <div className={dashboardStyles.cardHeader}>
-                                    <div
-                                        className={dashboardStyles.cardIcon}
-                                        style={{
-                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                                            backgroundColor: 'var(--neutral-100)'
-                                        }}
-                                    />
-                                    <div
-                                        style={{
-                                            height: '16px',
-                                            width: '80px',
-                                            backgroundColor: 'var(--neutral-100)',
-                                            borderRadius: 'var(--radius-md)',
-                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                        }}
-                                    />
-                                </div>
-                                <div className={dashboardStyles.cardStats}>
-                                    {[...Array(2)].map((_, j) => (
-                                        <div key={j} className={dashboardStyles.statItem}>
-                                            <div
-                                                style={{
-                                                    height: '24px',
-                                                    width: '60px',
-                                                    backgroundColor: 'var(--neutral-100)',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    marginBottom: '4px',
-                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                }}
-                                            />
-                                            <div
-                                                style={{
-                                                    height: '12px',
-                                                    width: '80px',
-                                                    backgroundColor: 'var(--neutral-100)',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : customerStats && (
-                <div className={dashboardStyles.overviewSection}>
-                    <div className={dashboardStyles.sectionTitle}>Customer Overview</div>
-                    <div className={dashboardStyles.overviewCards}>
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <Users size={18} />
-                                </div>
-                                <span className={dashboardStyles.cardTitle}>Total Customers</span>
-                            </div>
-                            <div className={dashboardStyles.cardStats}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{customerStats.totalCustomers}</div>
-                                    <div className={dashboardStyles.statText}>All Customers</div>
-                                </div>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{customerStats.recentCustomers}</div>
-                                    <div className={dashboardStyles.statText}>New This Month</div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <UserPlus size={18} />
-                                </div>
-                                <span className={dashboardStyles.cardTitle}>Gender Distribution</span>
-                            </div>
-                            <div className={dashboardStyles.cardStats}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{customerStats.genderStats.female || 0}</div>
-                                    <div className={dashboardStyles.statText}>Female</div>
-                                </div>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{customerStats.genderStats.male || 0}</div>
-                                    <div className={dashboardStyles.statText}>Male</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <UserCheck size={18} />
-                                </div>
-                                <span className={dashboardStyles.cardTitle}>Activity</span>
-                            </div>
-                            <div className={dashboardStyles.cardStats}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{customerStats.totalCustomers}</div>
-                                    <div className={dashboardStyles.statText}>Active Customers</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
 
 
@@ -301,7 +168,10 @@ const CustomersPage = () => {
                 <div className={styles.customerGrid}>
                     {filteredCustomers.map((customer) => (
                         <div key={customer.id} className={styles.cardWrapper}>
-                            <CustomerCard customer={customer} />
+                            <CustomerCard
+                                customer={customer}
+                                onView={(customer) => router.push(`/customers/${customer.id}`)}
+                            />
                             <div className={styles.cardActions}>
                                 <ActionsMenu
                                     items={[
@@ -328,6 +198,11 @@ const CustomersPage = () => {
                 (!customers || customers.length === 0 || filteredCustomers.length === 0) && (
                     <div
                         style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100%',
                             textAlign: 'center',
                             padding: 'var(--space-8)',
                             backgroundColor: 'var(--neutral-0)',

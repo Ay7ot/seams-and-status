@@ -104,6 +104,7 @@ export const signInWithGoogle = async (): Promise<AuthResult> => {
 
         return { success: true, user: result.user };
     } catch (error) {
+        console.error('Google sign-in error:', error);
         return { success: false, error: getAuthErrorMessage(error as AuthError) };
     }
 };
@@ -152,6 +153,16 @@ const getAuthErrorMessage = (error: AuthError): string => {
             return 'Sign-in was cancelled. Please try again.';
         case 'auth/cancelled-popup-request':
             return 'Sign-in was cancelled. Please try again.';
+        case 'auth/popup-blocked':
+            return 'Sign-in popup was blocked. Please allow popups and try again.';
+        case 'auth/account-exists-with-different-credential':
+            return 'An account already exists with this email using a different sign-in method.';
+        case 'auth/operation-not-allowed':
+            return 'Google sign-in is not enabled. Please contact support.';
+        case 'auth/unauthorized-domain':
+            return 'This domain is not authorized for sign-in. Please contact support.';
+        case 'auth/domain-not-verified':
+            return 'This domain is not verified. Please contact support.';
         default:
             return error.message || 'An unexpected error occurred. Please try again.';
     }

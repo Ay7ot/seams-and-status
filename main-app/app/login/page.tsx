@@ -87,16 +87,26 @@ export default function LoginPage() {
         setGoogleLoading(true);
         setErrors({});
 
+        // Add a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            setGoogleLoading(false);
+            showError('Google sign in failed', 'Request timed out. Please try again.');
+        }, 30000); // 30 seconds timeout
+
         try {
             const result = await signInWithGoogle();
+
+            clearTimeout(timeoutId);
 
             if (result.success) {
                 showSuccess('Welcome back!', 'You have successfully signed in with Google.');
                 router.push('/dashboard');
             } else {
-                showError('Google sign in failed', result.error);
+                showError('Google sign in failed', result.error || 'Sign in was cancelled or failed.');
             }
-        } catch {
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.error('Google sign-in error:', error);
             showError('Google sign in failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setGoogleLoading(false);

@@ -65,11 +65,7 @@ const MeasurementCard = ({
     const totalMeasurements = Object.keys(measurement.values).length;
 
     return (
-        <div
-            className={styles.measurementCard}
-            onClick={() => onView(measurement)}
-            style={{ cursor: 'pointer' }}
-        >
+        <div className={styles.measurementCard}>
             <div className={styles.cardHeader}>
                 <div className={styles.headerInfo}>
                     <h3 className={styles.garmentType}>{measurement.garmentType}</h3>
@@ -116,7 +112,15 @@ const MeasurementCard = ({
                         ? formatDate(measurement.createdAt.toDate())
                         : '...'}
                 </span>
-                <div onClick={(e) => e.stopPropagation()}>
+                <div className={styles.footerActions}>
+                    <button
+                        className={styles.openButton}
+                        onClick={() => onView(measurement)}
+                        aria-label={`View details for ${measurement.garmentType}`}
+                    >
+                        <Eye size={16} />
+                        <span>Open</span>
+                    </button>
                     <ActionsMenu items={menuItems} />
                 </div>
             </div>

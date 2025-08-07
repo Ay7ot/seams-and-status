@@ -4,12 +4,11 @@ import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus, Search, Users, Scissors, Calendar } from 'react-feather';
+import { Plus, Scissors, Search, UserPlus } from 'react-feather';
 import { Button, Modal, SelectOption } from '@/components/ui';
 import MeasurementForm from '@/components/measurements/MeasurementForm';
 import MeasurementCard from '@/components/measurements/MeasurementCard';
 import styles from '@/styles/components/measurement-card.module.css';
-import dashboardStyles from '@/styles/components/dashboard.module.css';
 import modalStyles from '@/styles/components/modal.module.css';
 import formStyles from '@/styles/components/auth.module.css'; // For search input
 import { db } from '@/lib/firebase';
@@ -66,33 +65,7 @@ const MeasurementsPage = () => {
         );
     }, [measurementsWithCustomerNames, searchTerm]);
 
-    // Calculate measurement statistics
-    const measurementStats = useMemo(() => {
-        if (!measurementsWithCustomerNames) return null;
 
-        const total = measurementsWithCustomerNames.length;
-        const recent = measurementsWithCustomerNames.filter(m => {
-            const createdAt = m.createdAt?.toDate();
-            if (!createdAt) return false;
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            return createdAt > thirtyDaysAgo;
-        }).length;
-
-        const genderDistribution = measurementsWithCustomerNames.reduce((acc, m) => {
-            acc[m.gender] = (acc[m.gender] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-
-        const uniqueCustomers = new Set(measurementsWithCustomerNames.map(m => m.customerId)).size;
-
-        return {
-            total,
-            recent,
-            genderDistribution,
-            uniqueCustomers,
-        };
-    }, [measurementsWithCustomerNames]);
 
     const customerOptions: SelectOption[] = useMemo(() => {
         if (!customers) return [];
@@ -128,6 +101,7 @@ const MeasurementsPage = () => {
                 // Add new measurement
                 await addDoc(collection(db, 'measurements'), {
                     ...data,
+                    userId: user?.uid,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
                 });
@@ -210,140 +184,15 @@ const MeasurementsPage = () => {
                         style={{ paddingLeft: 'var(--space-10)', width: '100%' }}
                     />
                 </div>
-                <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
-                    <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
-                    Add Measurement
-                </Button>
+                {measurements && measurements.length > 0 && (
+                    <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
+                        <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
+                        Add Measurement
+                    </Button>
+                )}
             </div>
 
-            {/* Business Overview Section */}
-            {loading ? (
-                <div className={dashboardStyles.overviewSection}>
-                    <div className={dashboardStyles.sectionTitle}>Measurement Overview</div>
-                    <div className={dashboardStyles.overviewCards}>
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className={dashboardStyles.overviewCard}>
-                                <div className={dashboardStyles.cardHeader}>
-                                    <div
-                                        className={dashboardStyles.cardIcon}
-                                        style={{
-                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                                            backgroundColor: 'var(--neutral-100)'
-                                        }}
-                                    />
-                                    <div
-                                        style={{
-                                            height: '16px',
-                                            width: '80px',
-                                            backgroundColor: 'var(--neutral-100)',
-                                            borderRadius: 'var(--radius-md)',
-                                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                        }}
-                                    />
-                                </div>
-                                <div className={dashboardStyles.cardStats}>
-                                    {[...Array(2)].map((_, j) => (
-                                        <div key={j} className={dashboardStyles.statItem}>
-                                            <div
-                                                style={{
-                                                    height: '24px',
-                                                    width: '60px',
-                                                    backgroundColor: 'var(--neutral-100)',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    marginBottom: '4px',
-                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                }}
-                                            />
-                                            <div
-                                                style={{
-                                                    height: '12px',
-                                                    width: '80px',
-                                                    backgroundColor: 'var(--neutral-100)',
-                                                    borderRadius: 'var(--radius-md)',
-                                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : measurementStats && (
-                <div className={dashboardStyles.overviewSection}>
-                    <div className={dashboardStyles.sectionTitle}>Measurement Overview</div>
-                    <div className={dashboardStyles.overviewCards}>
-                        {/* Total Measurements Card */}
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <Scissors size={18} />
-                                </div>
-                                <div className={dashboardStyles.cardTitle}>Total Measurements</div>
-                            </div>
-                            <div className={dashboardStyles.cardStats}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{measurementStats.total}</div>
-                                    <div className={dashboardStyles.statText}>All Time</div>
-                                </div>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{measurementStats.recent}</div>
-                                    <div className={dashboardStyles.statText}>Last 30 Days</div>
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Gender Distribution Card */}
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <Users size={18} />
-                                </div>
-                                <div className={dashboardStyles.cardTitle}>Gender Distribution</div>
-                            </div>
-                            <div className={dashboardStyles.cardStats} style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>
-                                        {measurementStats.genderDistribution.women || 0}
-                                    </div>
-                                    <div className={dashboardStyles.statText}>Women</div>
-                                </div>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>
-                                        {measurementStats.genderDistribution.men || 0}
-                                    </div>
-                                    <div className={dashboardStyles.statText}>Men</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Activity Card */}
-                        <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
-                            <div className={dashboardStyles.cardHeader}>
-                                <div className={dashboardStyles.cardIcon}>
-                                    <Calendar size={18} />
-                                </div>
-                                <div className={dashboardStyles.cardTitle}>Activity</div>
-                            </div>
-                            <div className={dashboardStyles.cardStats}>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>
-                                        {measurementStats.uniqueCustomers}
-                                    </div>
-                                    <div className={dashboardStyles.statText}>Customers</div>
-                                </div>
-                                <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>
-                                        {measurementStats.recent}
-                                    </div>
-                                    <div className={dashboardStyles.statText}>Recent</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Measurements Grid */}
             {loading && (
@@ -380,27 +229,53 @@ const MeasurementsPage = () => {
             {!loading && (!measurementsWithCustomerNames || measurementsWithCustomerNames.length === 0 || filteredMeasurements.length === 0) && (
                 <div
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100%',
                         textAlign: 'center',
                         padding: 'var(--space-8)',
                         backgroundColor: 'var(--neutral-0)',
                         borderRadius: 'var(--radius-xl)',
+                        border: '1px solid var(--neutral-200)',
+                        boxShadow: 'var(--shadow-sm)',
                     }}
                 >
+                    <Scissors
+                        size={48}
+                        style={{
+                            color: 'var(--neutral-400)',
+                            marginBottom: 'var(--space-4)',
+                        }}
+                    />
                     <h2
                         style={{
                             fontSize: 'var(--text-xl)',
                             fontWeight: 'var(--font-semibold)',
                             marginBottom: 'var(--space-4)',
+                            color: 'var(--neutral-900)',
                         }}
                     >
                         {searchTerm ? 'No Measurements Found' : 'No Measurements Yet'}
                     </h2>
-                    <p style={{ color: 'var(--neutral-600)' }}>
+                    <p
+                        style={{
+                            fontSize: 'var(--text-base)',
+                            color: 'var(--neutral-600)',
+                            marginBottom: 'var(--space-6)',
+                            lineHeight: 'var(--leading-relaxed)',
+                        }}
+                    >
                         {searchTerm
                             ? 'Try adjusting your search terms.'
                             : 'Add your first measurement to get started.'
                         }
                     </p>
+                    <Button onClick={handleAddNew}>
+                        <Scissors size={20} style={{ marginRight: 'var(--space-2)' }} />
+                        Add Measurement
+                    </Button>
                 </div>
             )}
 

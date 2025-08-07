@@ -106,16 +106,26 @@ export default function SignupPage() {
         setGoogleLoading(true);
         setErrors({});
 
+        // Add a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            setGoogleLoading(false);
+            showError('Google sign up failed', 'Request timed out. Please try again.');
+        }, 30000); // 30 seconds timeout
+
         try {
             const result = await signInWithGoogle();
+
+            clearTimeout(timeoutId);
 
             if (result.success) {
                 showSuccess('Account created!', 'Welcome to Seams & Status. Your account has been created with Google.');
                 router.push('/dashboard');
             } else {
-                showError('Google sign up failed', result.error);
+                showError('Google sign up failed', result.error || 'Sign up was cancelled or failed.');
             }
-        } catch {
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.error('Google sign-up error:', error);
             showError('Google sign up failed', 'An unexpected error occurred. Please try again.');
         } finally {
             setGoogleLoading(false);

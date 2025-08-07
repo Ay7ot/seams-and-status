@@ -154,7 +154,7 @@ const MeasurementForm = ({
                             ]}
                             value={field.value}
                             onChange={field.onChange}
-                            placeholder="Select gender for measurements"
+                            placeholder="Select gender"
                             disabled={isSaving}
                             error={!!errors.gender}
                         />

@@ -54,6 +54,23 @@ export const useFirestoreQuery = <T>({
         if (requireAuth && !isAuthenticated) {
             setLoading(false);
             setData(null);
+            setError(null);
+            return;
+        }
+
+        // Don't run query if user is not available yet
+        if (requireAuth && !user) {
+            setLoading(false);
+            setData(null);
+            setError(null);
+            return;
+        }
+
+        // Don't run query if user ID is not available yet
+        if (requireAuth && !user?.uid) {
+            setLoading(false);
+            setData(null);
+            setError(null);
             return;
         }
 
@@ -98,23 +115,44 @@ export const useFirestoreQuery = <T>({
         };
 
         if (listen) {
-            const unsubscribe = onSnapshot(
-                q,
-                (querySnapshot) => {
-                    const docs = querySnapshot.docs.map(
-                        (doc) => ({ id: doc.id, ...doc.data() } as T)
-                    );
-                    setData(docs);
-                    setLoading(false);
-                    setError(null);
-                },
-                (err) => {
-                    setError(err);
-                    setLoading(false);
-                    console.error(`Error listening to ${path}:`, err);
-                }
-            );
-            return () => unsubscribe();
+            try {
+                const unsubscribe = onSnapshot(
+                    q,
+                    (querySnapshot) => {
+                        const docs = querySnapshot.docs.map(
+                            (doc) => ({ id: doc.id, ...doc.data() } as T)
+                        );
+                        setData(docs);
+                        setLoading(false);
+                        setError(null);
+                    },
+                    (err) => {
+                        // Handle specific Firestore errors more gracefully
+                        if (err.code === 'permission-denied' || err.code === 'unavailable' || err.message?.includes('INTERNAL ASSERTION')) {
+                            console.warn(`Firestore listener error for ${path}:`, err.message);
+                            setData([]);
+                            setLoading(false);
+                            setError(null);
+                        } else {
+                            setError(err);
+                            setLoading(false);
+                            console.error(`Error listening to ${path}:`, err);
+                        }
+                    }
+                );
+                return () => {
+                    try {
+                        unsubscribe();
+                    } catch (unsubError) {
+                        console.warn(`Error unsubscribing from ${path}:`, unsubError);
+                    }
+                };
+            } catch (setupError) {
+                console.warn(`Error setting up listener for ${path}:`, setupError);
+                setData([]);
+                setLoading(false);
+                setError(null);
+            }
         } else {
             fetchData();
         }

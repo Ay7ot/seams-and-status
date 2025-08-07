@@ -246,10 +246,12 @@ const OrdersPage = () => {
                         style={{ paddingLeft: 'var(--space-10)', width: '100%' }}
                     />
                 </div>
-                <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
-                    <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
-                    Create Order
-                </Button>
+                {orders && orders.length > 0 && (
+                    <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
+                        <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
+                        Create Order
+                    </Button>
+                )}
             </div>
 
 
@@ -304,6 +306,10 @@ const OrdersPage = () => {
             {!loading && (!ordersWithCustomerNames || ordersWithCustomerNames.length === 0 || filteredOrders.length === 0) && (
                 <div
                     style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         textAlign: 'center',
                         padding: 'var(--space-8)',
                         backgroundColor: 'var(--neutral-0)',
