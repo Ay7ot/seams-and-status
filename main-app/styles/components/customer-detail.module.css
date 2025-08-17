@@ -17,6 +17,27 @@
   margin-top: var(--space-2);
 }
 
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+  .customerName {
+    font-size: var(--text-2xl);
+  }
+
+  .customerContact {
+    font-size: var(--text-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .customerName {
+    font-size: var(--text-xl);
+  }
+
+  .customerContact {
+    font-size: var(--text-sm);
+  }
+}
+
 .section {
   margin-bottom: var(--space-10);
 }
@@ -35,4 +56,60 @@
   margin-top: var(--space-6);
   padding-top: var(--space-6);
   border-top: 1px solid var(--neutral-200);
+}
+
+/* Mobile list layouts for measurements and orders */
+@media (max-width: 767px) {
+  .mobileList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .mobileListItem {
+    background: var(--neutral-0);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+  }
+
+  .mobileItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .mobileItemTitle {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--neutral-900);
+    margin: 0;
+  }
+
+  .mobileItemSubtitle {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+  }
+
+  .mobileItemMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .mobileMetaKey {
+    font-weight: var(--font-semibold);
+  }
+
+  .mobileItemFooter {
+    font-size: var(--text-xs);
+    color: var(--neutral-500);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
 }

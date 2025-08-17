@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Briefcase, Clipboard, Settings } from 'react-feather';
+import { Home, Users, Clipboard, Settings } from 'react-feather';
 import styles from '@/styles/components/bottom-navigation.module.css';
 
 interface NavItem {
@@ -31,13 +31,7 @@ const BottomNavigation = () => {
       icon: <Users size={24} className={styles.navIcon} />,
       active: pathname.startsWith('/customers'),
     },
-    {
-      id: 'orders',
-      label: 'Orders',
-      href: '/orders',
-      icon: <Briefcase size={24} className={styles.navIcon} />,
-      active: pathname.startsWith('/orders'),
-    },
+
     {
       id: 'measurements',
       label: 'Measurements',

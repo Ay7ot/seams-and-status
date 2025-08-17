@@ -14,6 +14,7 @@ import CustomerCard from '@/components/customers/CustomerCard';
 import { Customer } from '@/lib/types';
 import styles from '@/styles/components/customer-card.module.css';
 import formStyles from '@/styles/components/auth.module.css';
+import customerStyles from '@/styles/components/customer-detail.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -111,11 +112,10 @@ const CustomersPage = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: 'var(--space-6)',
-                    flexWrap: 'wrap',
                     gap: 'var(--space-4)',
                 }}
             >
-                <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                <div style={{ position: 'relative', flex: '1' }}>
                     <Search
                         size={20}
                         style={{
@@ -136,9 +136,8 @@ const CustomersPage = () => {
                     />
                 </div>
                 {customers && customers.length > 0 && (
-                    <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
-                        <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
-                        Add Customer
+                    <Button onClick={handleAddNew} style={{ flexShrink: 0, minWidth: '48px', padding: 'var(--space-3)' }}>
+                        <Plus size={20} />
                     </Button>
                 )}
             </div>
@@ -149,49 +148,116 @@ const CustomersPage = () => {
 
             {/* Customer Grid */}
             {loading && (
-                <div className={styles.customerGrid}>
-                    {[...Array(6)].map((_, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                backgroundColor: 'var(--neutral-0)',
-                                borderRadius: 'var(--radius-xl)',
-                                height: '180px',
-                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                            }}
-                        />
-                    ))}
-                </div>
+                <>
+                    <div className={`desktop-only ${styles.customerGrid}`}>
+                        {[...Array(6)].map((_, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    backgroundColor: 'var(--neutral-0)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    height: '180px',
+                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                }}
+                            />
+                        ))}
+                    </div>
+                    <div className={`mobile-only ${customerStyles.mobileList}`}>
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className={customerStyles.mobileListItem} style={{ height: '88px' }} />
+                        ))}
+                    </div>
+                </>
             )}
 
             {!loading && filteredCustomers.length > 0 && (
-                <div className={styles.customerGrid}>
-                    {filteredCustomers.map((customer) => (
-                        <div key={customer.id} className={styles.cardWrapper}>
-                            <CustomerCard
-                                customer={customer}
-                                onView={(customer) => router.push(`/customers/${customer.id}`)}
-                            />
-                            <div className={styles.cardActions}>
-                                <ActionsMenu
-                                    items={[
-                                        {
-                                            label: 'Edit',
-                                            icon: <Edit />,
-                                            onClick: () => handleEdit(customer),
-                                        },
-                                        {
-                                            label: 'Delete',
-                                            icon: <Trash />,
-                                            onClick: () => handleDelete(customer.id),
-                                            isDanger: true,
-                                        },
-                                    ]}
+                <>
+                    {/* Desktop cards */}
+                    <div className={`desktop-only ${styles.customerGrid}`}>
+                        {filteredCustomers.map((customer) => (
+                            <div key={customer.id} className={styles.cardWrapper}>
+                                <CustomerCard
+                                    customer={customer}
+                                    onView={(customer) => router.push(`/customers/${customer.id}`)}
                                 />
+                                <div className={styles.cardActions}>
+                                    <ActionsMenu
+                                        items={[
+                                            {
+                                                label: 'Edit',
+                                                icon: <Edit />,
+                                                onClick: () => handleEdit(customer),
+                                            },
+                                            {
+                                                label: 'Delete',
+                                                icon: <Trash />,
+                                                onClick: () => handleDelete(customer.id),
+                                                isDanger: true,
+                                            },
+                                        ]}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                    {/* Mobile list */}
+                    <div className={`mobile-only ${customerStyles.mobileList}`}>
+                        {filteredCustomers.map((customer) => (
+                            <div key={customer.id} className={customerStyles.mobileListItem}>
+                                <div className={customerStyles.mobileItemHeader}>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <h3 className={customerStyles.mobileItemTitle}>{customer.name}</h3>
+                                        <div className={customerStyles.mobileItemSubtitle}>{customer.contact}</div>
+                                    </div>
+                                    <span style={{
+                                        background: customer.gender === 'female'
+                                            ? 'linear-gradient(135deg, var(--accent-pink) 0%, rgba(236, 72, 153, 0.9) 100%)'
+                                            : customer.gender === 'male'
+                                                ? 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)'
+                                                : 'linear-gradient(135deg, var(--accent-purple) 0%, rgba(139, 92, 246, 0.9) 100%)',
+                                        color: 'var(--neutral-0)',
+                                        padding: 'var(--space-1) var(--space-2)',
+                                        borderRadius: 'var(--radius-full)',
+                                        fontSize: 'var(--text-xs)',
+                                        fontWeight: 'var(--font-bold)',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.1em'
+                                    }}>
+                                        {customer.gender === 'female' ? 'Female' : customer.gender === 'male' ? 'Male' : 'Other'}
+                                    </span>
+                                </div>
+                                <div className={customerStyles.mobileItemMeta}>
+                                    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+                                        <span className={customerStyles.mobileMetaKey}>Joined:</span> {customer.createdAt ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(customer.createdAt.toDate()) : 'N/A'}
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <button
+                                        style={{
+                                            background: 'var(--primary-500)',
+                                            color: 'var(--neutral-0)',
+                                            border: 'none',
+                                            borderRadius: 'var(--radius-md)',
+                                            padding: 'var(--space-2) var(--space-3)',
+                                            fontSize: 'var(--text-sm)',
+                                            fontWeight: 'var(--font-semibold)',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => router.push(`/customers/${customer.id}`)}
+                                    >
+                                        Open
+                                    </button>
+                                    <ActionsMenu
+                                        items={[
+                                            { label: 'Edit', icon: <Edit />, onClick: () => handleEdit(customer) },
+                                            { label: 'Delete', icon: <Trash />, onClick: () => handleDelete(customer.id), isDanger: true },
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
 
             {!loading &&

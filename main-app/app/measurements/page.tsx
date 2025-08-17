@@ -4,13 +4,15 @@ import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
-import { Plus, Scissors, Search, UserPlus } from 'react-feather';
-import { Button, Modal, SelectOption } from '@/components/ui';
-import MeasurementForm from '@/components/measurements/MeasurementForm';
-import MeasurementCard from '@/components/measurements/MeasurementCard';
+import { Plus, Search, Scissors, Settings, Copy, Trash } from 'react-feather';
+import { Button, Modal, ActionsMenu } from '@/components/ui';
+import PresetForm from '@/components/measurements/PresetForm';
+import PresetCard from '@/components/measurements/PresetCard';
+import CustomMeasurementForm from '@/components/measurements/CustomMeasurementForm';
 import styles from '@/styles/components/measurement-card.module.css';
 import modalStyles from '@/styles/components/modal.module.css';
-import formStyles from '@/styles/components/auth.module.css'; // For search input
+import formStyles from '@/styles/components/auth.module.css';
+import customerStyles from '@/styles/components/customer-detail.module.css';
 import { db } from '@/lib/firebase';
 import {
     collection,
@@ -20,139 +22,197 @@ import {
     doc,
     serverTimestamp,
 } from 'firebase/firestore';
-import { Customer, Measurement } from '@/lib/types';
+import { MeasurementPreset, CustomMeasurement } from '@/lib/types';
 
 const MeasurementsPage = () => {
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState<'presets' | 'custom'>('presets');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [editingMeasurement, setEditingMeasurement] =
-        useState<Measurement | null>(null);
+    const [editingPreset, setEditingPreset] = useState<MeasurementPreset | null>(null);
+    const [editingCustomMeasurement, setEditingCustomMeasurement] = useState<CustomMeasurement | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [measurementToDelete, setMeasurementToDelete] = useState<string | null>(null);
+    const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'preset' | 'custom' } | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [viewingMeasurement, setViewingMeasurement] = useState<Measurement | null>(null);
 
-    const { data: customers } = useFirestoreQuery<Customer>({
-        path: 'customers',
+    const { data: presets, loading: presetsLoading } = useFirestoreQuery<MeasurementPreset>({
+        path: 'measurementPresets',
         constraints: user ? [{ type: 'where', field: 'userId', operator: '==', value: user.uid }] : [],
         listen: true,
     });
 
-    const { data: measurements, loading } = useFirestoreQuery<Measurement>({
-        path: 'measurements',
+    const { data: customMeasurements, loading: customMeasurementsLoading } = useFirestoreQuery<CustomMeasurement>({
+        path: 'customMeasurements',
         constraints: user ? [{ type: 'where', field: 'userId', operator: '==', value: user.uid }] : [],
         listen: true,
     });
 
-    const measurementsWithCustomerNames = useMemo(() => {
-        if (!measurements || !customers) return [];
-        const customerMap = new Map(customers.map((c) => [c.id, c.name]));
-        return measurements.map((m) => ({
-            ...m,
-            customerName: customerMap.get(m.customerId) || 'Unknown Customer',
-        }));
-    }, [measurements, customers]);
-
-    const filteredMeasurements = useMemo(() => {
-        if (!measurementsWithCustomerNames) return [];
-        return measurementsWithCustomerNames.filter(
-            (measurement) =>
-                measurement.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                measurement.garmentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                measurement.gender.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredPresets = useMemo(() => {
+        if (!presets) return [];
+        return presets.filter(
+            (preset) =>
+                preset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (preset.garmentType && preset.garmentType.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                preset.gender.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [measurementsWithCustomerNames, searchTerm]);
+    }, [presets, searchTerm]);
 
-
-
-    const customerOptions: SelectOption[] = useMemo(() => {
-        if (!customers) return [];
-        return customers.map((c) => ({ label: c.name, value: c.id }));
-    }, [customers]);
+    const filteredCustomMeasurements = useMemo(() => {
+        if (!customMeasurements) return [];
+        return customMeasurements.filter(
+            (cm) =>
+                cm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                cm.shortForm.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                cm.gender.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [customMeasurements, searchTerm]);
 
     const handleAddNew = () => {
-        setEditingMeasurement(null);
+        if (activeTab === 'presets') {
+            setEditingPreset(null);
+        } else {
+            setEditingCustomMeasurement(null);
+        }
         setIsModalOpen(true);
     };
 
-    const handleEdit = (measurement: Measurement) => {
-        setEditingMeasurement(measurement);
+    const handleEditPreset = (preset: MeasurementPreset) => {
+        setEditingPreset(preset);
+        setIsModalOpen(true);
+    };
+
+    const handleEditCustomMeasurement = (cm: CustomMeasurement) => {
+        setEditingCustomMeasurement(cm);
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setEditingMeasurement(null);
+        setEditingPreset(null);
+        setEditingCustomMeasurement(null);
     };
 
-    const handleSaveMeasurement = async (data: Partial<Measurement>) => {
+    const handleSavePreset = async (data: Partial<MeasurementPreset>) => {
+        if (!user) return;
         setIsSaving(true);
         try {
-            if (editingMeasurement) {
-                // Update existing measurement
-                const measurementRef = doc(db, 'measurements', editingMeasurement.id);
-                await updateDoc(measurementRef, {
+            if (editingPreset) {
+                const presetRef = doc(db, 'measurementPresets', editingPreset.id);
+                await updateDoc(presetRef, {
                     ...data,
                     updatedAt: serverTimestamp(),
                 });
             } else {
-                // Add new measurement
-                await addDoc(collection(db, 'measurements'), {
+                await addDoc(collection(db, 'measurementPresets'), {
                     ...data,
-                    userId: user?.uid,
+                    userId: user.uid,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
                 });
             }
             handleCloseModal();
         } catch (error) {
-            console.error('Error saving measurement:', error);
+            console.error('Error saving preset:', error);
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleDelete = async (id: string) => {
-        setMeasurementToDelete(id);
+    const handleSaveCustomMeasurement = async (data: Partial<CustomMeasurement>) => {
+        if (!user) return;
+        setIsSaving(true);
+        try {
+            if (editingCustomMeasurement) {
+                const cmRef = doc(db, 'customMeasurements', editingCustomMeasurement.id);
+                await updateDoc(cmRef, {
+                    ...data,
+                    updatedAt: serverTimestamp(),
+                });
+            } else {
+                await addDoc(collection(db, 'customMeasurements'), {
+                    ...data,
+                    userId: user.uid,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                });
+            }
+            handleCloseModal();
+        } catch (error) {
+            console.error('Error saving custom measurement:', error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async (id: string, type: 'preset' | 'custom') => {
+        setItemToDelete({ id, type });
         setIsDeleteModalOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (!measurementToDelete) return;
+        if (!itemToDelete) return;
         try {
-            const measurementRef = doc(db, 'measurements', measurementToDelete);
-            await deleteDoc(measurementRef);
+            const collectionName = itemToDelete.type === 'preset' ? 'measurementPresets' : 'customMeasurements';
+            await deleteDoc(doc(db, collectionName, itemToDelete.id));
         } catch (error) {
-            console.error('Error deleting measurement: ', error);
+            console.error('Error deleting item: ', error);
         } finally {
             setIsDeleteModalOpen(false);
-            setMeasurementToDelete(null);
+            setItemToDelete(null);
         }
     };
 
-    const handleCopy = (measurement: Measurement) => {
-        setEditingMeasurement({
-            ...measurement,
+    const handleCopyPreset = (preset: MeasurementPreset) => {
+        setEditingPreset({
+            ...preset,
             id: '',
+            name: `${preset.name} (Copy)`,
             createdAt: undefined,
+            updatedAt: undefined,
         });
         setIsModalOpen(true);
     };
 
-    const handleView = (measurement: Measurement) => {
-        setViewingMeasurement(measurement);
-        setIsViewModalOpen(true);
-    };
-
-    const handleCloseViewModal = () => {
-        setIsViewModalOpen(false);
-        setViewingMeasurement(null);
-    };
+    const loading = presetsLoading || customMeasurementsLoading;
+    const currentItems = activeTab === 'presets' ? filteredPresets : filteredCustomMeasurements;
+    const hasItems = activeTab === 'presets' ? (presets && presets.length > 0) : (customMeasurements && customMeasurements.length > 0);
 
     return (
-        <DashboardLayout title="Measurements" breadcrumb="Measurement Management">
+        <DashboardLayout title="Measurement Management" breadcrumb="Measurement Management">
+            {/* Tabs */}
+            <div style={{
+                display: 'flex',
+                borderBottom: '1px solid var(--neutral-200)',
+                marginBottom: 'var(--space-6)'
+            }}>
+                <button
+                    onClick={() => setActiveTab('presets')}
+                    style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        borderBottom: activeTab === 'presets' ? '2px solid var(--primary-500)' : '2px solid transparent',
+                        color: activeTab === 'presets' ? 'var(--primary-600)' : 'var(--neutral-600)',
+                        fontWeight: activeTab === 'presets' ? 'var(--font-semibold)' : 'var(--font-medium)',
+                        background: 'none',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Presets
+                </button>
+                <button
+                    onClick={() => setActiveTab('custom')}
+                    style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        borderBottom: activeTab === 'custom' ? '2px solid var(--primary-500)' : '2px solid transparent',
+                        color: activeTab === 'custom' ? 'var(--primary-600)' : 'var(--neutral-600)',
+                        fontWeight: activeTab === 'custom' ? 'var(--font-semibold)' : 'var(--font-medium)',
+                        background: 'none',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Custom
+                </button>
+            </div>
+
             {/* Search and Add Section */}
             <div
                 style={{
@@ -160,11 +220,10 @@ const MeasurementsPage = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: 'var(--space-6)',
-                    flexWrap: 'wrap',
                     gap: 'var(--space-4)',
                 }}
             >
-                <div style={{ position: 'relative', flex: '1 1 300px' }}>
+                <div style={{ position: 'relative', flex: '1' }}>
                     <Search
                         size={20}
                         style={{
@@ -177,56 +236,219 @@ const MeasurementsPage = () => {
                     />
                     <input
                         type="text"
-                        placeholder="Search by customer, garment type, or gender..."
+                        placeholder={activeTab === 'presets'
+                            ? "Search by name, garment type, or gender..."
+                            : "Search by name, short form, or gender..."
+                        }
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className={formStyles.input}
                         style={{ paddingLeft: 'var(--space-10)', width: '100%' }}
                     />
                 </div>
-                {measurements && measurements.length > 0 && (
-                    <Button onClick={handleAddNew} style={{ flexShrink: 0 }}>
-                        <Plus size={20} style={{ marginRight: 'var(--space-2)' }} />
-                        Add Measurement
+                {hasItems && (
+                    <Button onClick={handleAddNew} style={{ flexShrink: 0, minWidth: '48px', padding: 'var(--space-3)' }}>
+                        <Plus size={20} />
                     </Button>
                 )}
             </div>
 
-
-
-            {/* Measurements Grid */}
+            {/* Content Grid */}
             {loading && (
-                <div className={styles.measurementGrid}>
-                    {[...Array(4)].map((_, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                backgroundColor: 'var(--neutral-0)',
-                                borderRadius: 'var(--radius-xl)',
-                                height: '280px',
-                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                            }}
-                        />
-                    ))}
-                </div>
+                <>
+                    <div className={`desktop-only ${styles.measurementGrid}`}>
+                        {[...Array(4)].map((_, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    backgroundColor: 'var(--neutral-0)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    height: '280px',
+                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                }}
+                            />
+                        ))}
+                    </div>
+                    <div className={`mobile-only ${customerStyles.mobileList}`}>
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className={customerStyles.mobileListItem} style={{ height: '88px' }} />
+                        ))}
+                    </div>
+                </>
             )}
 
-            {!loading && filteredMeasurements.length > 0 && (
-                <div className={styles.measurementGrid}>
-                    {filteredMeasurements.map((measurement) => (
-                        <MeasurementCard
-                            key={measurement.id}
-                            measurement={measurement}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onCopy={handleCopy}
-                            onView={handleView}
-                        />
-                    ))}
-                </div>
+            {!loading && currentItems.length > 0 && (
+                <>
+                    {/* Desktop cards */}
+                    <div className={`desktop-only ${styles.measurementGrid}`}>
+                        {activeTab === 'presets' ? (
+                            filteredPresets.map((preset) => (
+                                <PresetCard
+                                    key={preset.id}
+                                    preset={preset}
+                                    onEdit={handleEditPreset}
+                                    onDelete={(id) => handleDelete(id, 'preset')}
+                                    onCopy={handleCopyPreset}
+                                />
+                            ))
+                        ) : (
+                            filteredCustomMeasurements.map((cm) => (
+                                <div key={cm.id} className={styles.measurementCard}>
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.headerInfo}>
+                                            <h3 className={styles.garmentType}>{cm.name}</h3>
+                                            <p className={styles.customerName}>
+                                                Short form: {cm.shortForm}
+                                            </p>
+                                        </div>
+                                        <span className={styles.genderTag} data-gender={cm.gender}>
+                                            {cm.gender === 'women' ? 'Female' : cm.gender === 'men' ? 'Male' : 'Both'}
+                                        </span>
+                                    </div>
+                                    <div className={styles.cardFooter}>
+                                        <span className={styles.dateSpan}>
+                                            Unit: {cm.unit}
+                                        </span>
+                                        <div className={styles.footerActions}>
+                                            <button
+                                                className={styles.openButton}
+                                                onClick={() => handleEditCustomMeasurement(cm)}
+                                            >
+                                                <Settings size={16} />
+                                                <span>Edit</span>
+                                            </button>
+                                            <button
+                                                className={styles.openButton}
+                                                onClick={() => handleDelete(cm.id, 'custom')}
+                                                style={{ backgroundColor: 'var(--error-500)' }}
+                                            >
+                                                <Scissors size={16} />
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    {/* Mobile list */}
+                    <div className={`mobile-only ${customerStyles.mobileList}`}>
+                        {activeTab === 'presets' ? (
+                            filteredPresets.map((preset) => (
+                                <div key={preset.id} className={customerStyles.mobileListItem}>
+                                    <div className={customerStyles.mobileItemHeader}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <h3 className={customerStyles.mobileItemTitle}>{preset.name}</h3>
+                                            <div className={customerStyles.mobileItemSubtitle}>{preset.garmentType}</div>
+                                        </div>
+                                        <span style={{
+                                            background: preset.gender === 'women'
+                                                ? 'linear-gradient(135deg, var(--accent-pink) 0%, rgba(236, 72, 153, 0.9) 100%)'
+                                                : 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)',
+                                            color: 'var(--neutral-0)',
+                                            padding: 'var(--space-1) var(--space-2)',
+                                            borderRadius: 'var(--radius-full)',
+                                            fontSize: 'var(--text-xs)',
+                                            fontWeight: 'var(--font-bold)',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.1em'
+                                        }}>
+                                            {preset.gender === 'women' ? 'Female' : 'Male'}
+                                        </span>
+                                    </div>
+                                    <div className={customerStyles.mobileItemMeta}>
+                                        <div style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+                                            <span className={customerStyles.mobileMetaKey}>Unit:</span> {preset.unit}
+                                        </div>
+                                        <div style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+                                            <span className={customerStyles.mobileMetaKey}>Fields:</span> {Object.keys(preset.values).length}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <button
+                                            style={{
+                                                background: 'var(--primary-500)',
+                                                color: 'var(--neutral-0)',
+                                                border: 'none',
+                                                borderRadius: 'var(--radius-md)',
+                                                padding: 'var(--space-2) var(--space-3)',
+                                                fontSize: 'var(--text-sm)',
+                                                fontWeight: 'var(--font-semibold)',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => handleEditPreset(preset)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <ActionsMenu
+                                            items={[
+                                                { label: 'Copy', icon: <Copy />, onClick: () => handleCopyPreset(preset) },
+                                                { label: 'Delete', icon: <Trash />, onClick: () => handleDelete(preset.id, 'preset'), isDanger: true },
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            filteredCustomMeasurements.map((cm) => (
+                                <div key={cm.id} className={customerStyles.mobileListItem}>
+                                    <div className={customerStyles.mobileItemHeader}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <h3 className={customerStyles.mobileItemTitle}>{cm.name}</h3>
+                                            <div className={customerStyles.mobileItemSubtitle}>Short form: {cm.shortForm}</div>
+                                        </div>
+                                        <span style={{
+                                            background: cm.gender === 'women'
+                                                ? 'linear-gradient(135deg, var(--accent-pink) 0%, rgba(236, 72, 153, 0.9) 100%)'
+                                                : cm.gender === 'men'
+                                                    ? 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)'
+                                                    : 'linear-gradient(135deg, var(--accent-purple) 0%, rgba(139, 92, 246, 0.9) 100%)',
+                                            color: 'var(--neutral-0)',
+                                            padding: 'var(--space-1) var(--space-2)',
+                                            borderRadius: 'var(--radius-full)',
+                                            fontSize: 'var(--text-xs)',
+                                            fontWeight: 'var(--font-bold)',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.1em'
+                                        }}>
+                                            {cm.gender === 'women' ? 'Female' : cm.gender === 'men' ? 'Male' : 'Both'}
+                                        </span>
+                                    </div>
+                                    <div className={customerStyles.mobileItemMeta}>
+                                        <div style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+                                            <span className={customerStyles.mobileMetaKey}>Unit:</span> {cm.unit}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <button
+                                            style={{
+                                                background: 'var(--primary-500)',
+                                                color: 'var(--neutral-0)',
+                                                border: 'none',
+                                                borderRadius: 'var(--radius-md)',
+                                                padding: 'var(--space-2) var(--space-3)',
+                                                fontSize: 'var(--text-sm)',
+                                                fontWeight: 'var(--font-semibold)',
+                                                cursor: 'pointer'
+                                            }}
+                                            onClick={() => handleEditCustomMeasurement(cm)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <ActionsMenu
+                                            items={[
+                                                { label: 'Delete', icon: <Trash />, onClick: () => handleDelete(cm.id, 'custom'), isDanger: true },
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </>
             )}
 
-            {!loading && (!measurementsWithCustomerNames || measurementsWithCustomerNames.length === 0 || filteredMeasurements.length === 0) && (
+            {!loading && (!hasItems || currentItems.length === 0) && (
                 <div
                     style={{
                         display: 'flex',
@@ -257,7 +479,7 @@ const MeasurementsPage = () => {
                             color: 'var(--neutral-900)',
                         }}
                     >
-                        {searchTerm ? 'No Measurements Found' : 'No Measurements Yet'}
+                        {searchTerm ? 'No Items Found' : activeTab === 'presets' ? 'No Presets Yet' : 'No Custom Measurements Yet'}
                     </h2>
                     <p
                         style={{
@@ -269,30 +491,43 @@ const MeasurementsPage = () => {
                     >
                         {searchTerm
                             ? 'Try adjusting your search terms.'
-                            : 'Add your first measurement to get started.'
+                            : activeTab === 'presets'
+                                ? 'Create measurement presets to speed up your workflow when taking measurements for customers.'
+                                : 'Add custom measurement fields that aren\'t in the standard list.'
                         }
                     </p>
                     <Button onClick={handleAddNew}>
                         <Scissors size={20} style={{ marginRight: 'var(--space-2)' }} />
-                        Add Measurement
+                        {activeTab === 'presets' ? 'Create First Preset' : 'Add First Custom Measurement'}
                     </Button>
                 </div>
             )}
 
+            {/* Modals */}
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 title={
-                    editingMeasurement ? 'Edit Measurement' : 'Add New Measurement'
+                    activeTab === 'presets'
+                        ? (editingPreset ? 'Edit Preset' : 'Create New Preset')
+                        : (editingCustomMeasurement ? 'Edit Custom Measurement' : 'Add Custom Measurement')
                 }
             >
-                <MeasurementForm
-                    onSave={handleSaveMeasurement}
-                    onClose={handleCloseModal}
-                    customers={customerOptions}
-                    isSaving={isSaving}
-                    defaultValues={editingMeasurement || undefined}
-                />
+                {activeTab === 'presets' ? (
+                    <PresetForm
+                        onSave={handleSavePreset}
+                        onClose={handleCloseModal}
+                        isSaving={isSaving}
+                        defaultValues={editingPreset || undefined}
+                    />
+                ) : (
+                    <CustomMeasurementForm
+                        onSave={handleSaveCustomMeasurement}
+                        onClose={handleCloseModal}
+                        isSaving={isSaving}
+                        defaultValues={editingCustomMeasurement || undefined}
+                    />
+                )}
             </Modal>
 
             <Modal
@@ -301,7 +536,7 @@ const MeasurementsPage = () => {
                 title="Confirm Deletion"
             >
                 <p>
-                    Are you sure you want to delete this measurement? This action
+                    Are you sure you want to delete this {itemToDelete?.type === 'preset' ? 'preset' : 'custom measurement'}? This action
                     cannot be undone.
                 </p>
                 <div className={modalStyles.modalFooter}>
@@ -315,111 +550,6 @@ const MeasurementsPage = () => {
                         Delete
                     </Button>
                 </div>
-            </Modal>
-
-            {/* View Measurement Modal */}
-            <Modal
-                isOpen={isViewModalOpen}
-                onClose={handleCloseViewModal}
-                title="Measurement Details"
-            >
-                {viewingMeasurement && (
-                    <div style={{ padding: 'var(--space-4)' }}>
-                        <div style={{ marginBottom: 'var(--space-6)' }}>
-                            <h3 style={{
-                                fontSize: 'var(--text-xl)',
-                                fontWeight: 'var(--font-bold)',
-                                marginBottom: 'var(--space-2)',
-                                color: 'var(--neutral-900)'
-                            }}>
-                                {viewingMeasurement.garmentType}
-                            </h3>
-                            <p style={{
-                                color: 'var(--neutral-600)',
-                                marginBottom: 'var(--space-1)'
-                            }}>
-                                Customer: {viewingMeasurement.customerName || 'N/A'}
-                            </p>
-                            <span style={{
-                                background: 'var(--primary-100)',
-                                color: 'var(--primary-700)',
-                                padding: 'var(--space-1) var(--space-3)',
-                                borderRadius: 'var(--radius-full)',
-                                fontSize: 'var(--text-xs)',
-                                fontWeight: 'var(--font-semibold)',
-                                textTransform: 'uppercase'
-                            }}>
-                                {viewingMeasurement.gender === 'women' ? 'Female' : 'Male'}
-                            </span>
-                        </div>
-
-                        <div style={{ marginBottom: 'var(--space-6)' }}>
-                            <h4 style={{
-                                fontSize: 'var(--text-lg)',
-                                fontWeight: 'var(--font-semibold)',
-                                marginBottom: 'var(--space-4)',
-                                color: 'var(--neutral-800)'
-                            }}>
-                                All Measurements
-                            </h4>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                gap: 'var(--space-4)'
-                            }}>
-                                {Object.entries(viewingMeasurement.values).map(([key, value]) => (
-                                    <div key={key} style={{
-                                        background: 'var(--neutral-50)',
-                                        padding: 'var(--space-4)',
-                                        borderRadius: 'var(--radius-lg)',
-                                        border: '1px solid var(--neutral-200)'
-                                    }}>
-                                        <div style={{
-                                            fontSize: 'var(--text-xs)',
-                                            color: 'var(--neutral-500)',
-                                            fontWeight: 'var(--font-semibold)',
-                                            textTransform: 'uppercase',
-                                            marginBottom: 'var(--space-1)'
-                                        }}>
-                                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                                        </div>
-                                        <div style={{
-                                            fontSize: 'var(--text-lg)',
-                                            fontWeight: 'var(--font-bold)',
-                                            color: 'var(--neutral-900)'
-                                        }}>
-                                            {value} {viewingMeasurement.unit || 'in'}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div style={{
-                            padding: 'var(--space-4)',
-                            background: 'var(--neutral-50)',
-                            borderRadius: 'var(--radius-lg)',
-                            border: '1px solid var(--neutral-200)'
-                        }}>
-                            <div style={{
-                                fontSize: 'var(--text-sm)',
-                                color: 'var(--neutral-600)',
-                                marginBottom: 'var(--space-1)'
-                            }}>
-                                Created on{' '}
-                                {viewingMeasurement.createdAt
-                                    ? new Intl.DateTimeFormat('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    }).format(viewingMeasurement.createdAt.toDate())
-                                    : '...'}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </Modal>
         </DashboardLayout>
     );

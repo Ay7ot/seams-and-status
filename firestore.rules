@@ -38,6 +38,20 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
     }
 
+    // Measurement Presets collection
+    match /measurementPresets/{presetId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    // Custom Measurements collection
+    match /customMeasurements/{customMeasurementId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
     // Payments collection
     match /payments/{paymentId} {
       allow read, write: if isAuthenticated() && request.auth.uid == resource.data.userId;

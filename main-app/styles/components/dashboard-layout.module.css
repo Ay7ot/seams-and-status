@@ -448,7 +448,7 @@
   }
 
   .headerContainer {
-    padding: 0 var(--space-4);
+    padding: 0;
   }
 
   .desktopThemeToggle {

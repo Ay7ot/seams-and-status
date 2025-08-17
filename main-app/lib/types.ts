@@ -65,6 +65,29 @@ export interface Payment {
     createdAt: { toDate: () => Date };
 }
 
+export interface MeasurementPreset {
+    id: string;
+    userId: string;
+    name: string;
+    gender: 'men' | 'women';
+    unit: 'in' | 'cm';
+    garmentType: string;
+    values: { [key: string]: number };
+    createdAt?: { toDate: () => Date };
+    updatedAt?: { toDate: () => Date };
+}
+
+export interface CustomMeasurement {
+    id: string;
+    userId: string;
+    name: string;
+    shortForm: string;
+    gender: 'men' | 'women' | 'both';
+    unit: 'in' | 'cm';
+    createdAt?: { toDate: () => Date };
+    updatedAt?: { toDate: () => Date };
+}
+
 export interface FirestoreQuery {
     path: string;
     constraints?: QueryConstraint[];

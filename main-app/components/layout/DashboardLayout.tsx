@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     Home,
     Users,
-    Briefcase,
     Clipboard,
     Settings,
     LogOut,
@@ -19,6 +18,7 @@ import BottomNavigation from './BottomNavigation'; // Import the new component
 import { ThemeToggle } from '@/components/ui';
 import styles from '@/styles/components/dashboard-layout.module.css';
 import { User } from 'firebase/auth';
+import Image from 'next/image';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -59,13 +59,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
             icon: <Users size={20} className={styles.navIcon} />,
             active: pathname.startsWith('/customers'),
         },
-        {
-            id: 'orders',
-            label: 'Orders',
-            href: '/orders',
-            icon: <Briefcase size={20} className={styles.navIcon} />,
-            active: pathname.startsWith('/orders'),
-        },
+
         {
             id: 'measurements',
             label: 'Measurements',
@@ -146,7 +140,6 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
         return 'U';
     };
 
-    console.log(showBackButton)
 
     return (
         <div className={styles.dashboardContainer}>
@@ -171,7 +164,7 @@ const DashboardLayout = ({ children, title = 'Dashboard', breadcrumb }: Dashboar
             >
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logo} role="img" aria-label="Seams & Status">
-                        Seams & Status
+                        <Image src="/app-icon.svg" alt="Seams & Status" width={40} height={40} />
                     </div>
                 </div>
 

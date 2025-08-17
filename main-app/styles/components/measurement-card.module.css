@@ -189,7 +189,7 @@
 
 .previewValue {
   font-weight: var(--font-bold);
-  color: var(--neutral-100);
+  color: var(--neutral-900);
   font-size: var(--text-base);
   display: flex;
   align-items: baseline;

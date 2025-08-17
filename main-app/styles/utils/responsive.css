@@ -110,18 +110,14 @@
 
 @media (min-width: 768px) {
   .mobile-only {
-    display: none;
+    display: none !important;
   }
 }
 
 @media (max-width: 767px) {
   .desktop-only {
-    display: none;
+    display: none !important;
   }
 }
 
-@media (min-width: 768px) {
-  .desktop-only {
-    display: block;
-  }
-}
+/* Hide desktop-only blocks on mobile without overriding their original display on desktop */

@@ -6,15 +6,14 @@ import styles from '@/styles/components/auth.module.css';
 import measurementStyles from '@/styles/components/measurement.module.css';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useMemo } from 'react';
-import { Measurement, MeasurementPreset, CustomMeasurement } from '@/lib/types';
+import { MeasurementPreset, CustomMeasurement } from '@/lib/types';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 
-interface MeasurementFormProps {
-    onSave: (data: Partial<Measurement>) => void;
+interface PresetFormProps {
+    onSave: (data: Partial<MeasurementPreset>) => void;
     onClose: () => void;
-    customers: SelectOption[];
     isSaving: boolean;
-    defaultValues?: Partial<Measurement>;
+    defaultValues?: Partial<MeasurementPreset>;
 }
 
 const measurementFields = {
@@ -48,13 +47,12 @@ const unitOptions: SelectOption[] = [
     { label: 'Centimeters (cm)', value: 'cm' },
 ];
 
-const MeasurementForm = ({
+const PresetForm = ({
     onSave,
     onClose,
-    customers,
     isSaving,
     defaultValues,
-}: MeasurementFormProps) => {
+}: PresetFormProps) => {
     const { userProfile } = useAuth();
 
     const defaultUnit = userProfile?.defaultUnit || 'in';
@@ -66,7 +64,7 @@ const MeasurementForm = ({
         watch,
         reset,
         formState: { errors },
-    } = useForm<Partial<Measurement>>({
+    } = useForm<Partial<MeasurementPreset>>({
         defaultValues: {
             ...defaultValues,
             unit: defaultValues?.unit || defaultUnit,
@@ -75,24 +73,12 @@ const MeasurementForm = ({
 
     const selectedGender = watch('gender');
 
-    // Load measurement presets for the user (optionally filter by gender when selected)
-    const { data: allPresets } = useFirestoreQuery<MeasurementPreset>({
-        path: 'measurementPresets',
-        constraints: [{ type: 'where', field: 'userId', operator: '==', value: userProfile?.uid || '' }],
-        listen: true,
-    });
-
     // Load custom measurements for the user
     const { data: customMeasurements } = useFirestoreQuery<CustomMeasurement>({
         path: 'customMeasurements',
         constraints: [{ type: 'where', field: 'userId', operator: '==', value: userProfile?.uid || '' }],
         listen: true,
     });
-
-    const presetOptions: SelectOption[] = useMemo(() => {
-        const filtered = (allPresets || []).filter(p => !selectedGender || p.gender === selectedGender);
-        return filtered.map(p => ({ label: `${p.name} (${p.gender})`, value: p.id }));
-    }, [allPresets, selectedGender]);
 
     // Combine standard and custom measurement fields
     const allFields = useMemo(() => {
@@ -106,35 +92,21 @@ const MeasurementForm = ({
         return [...standardFields, ...customFields];
     }, [selectedGender, customMeasurements]);
 
-    const applyPresetById = (presetId: string | undefined) => {
-        if (!presetId) return;
-        const preset = allPresets?.find(p => p.id === presetId);
-        if (!preset) return;
-        // Apply preset values to form, but keep customer and garment type
-        reset({
-            customerId: defaultValues?.customerId,
-            garmentType: defaultValues?.garmentType,
-            gender: preset.gender,
-            unit: preset.unit,
-            values: preset.values as Record<string, number>,
-        });
-    };
-
     useEffect(() => {
         if (defaultValues) {
             reset({
-                customerId: defaultValues.customerId,
-                garmentType: defaultValues.garmentType,
+                name: defaultValues.name,
                 gender: defaultValues.gender,
-                ...defaultValues.values,
                 unit: defaultValues.unit || defaultUnit,
+                garmentType: defaultValues.garmentType,
+                ...defaultValues.values,
             });
         } else {
             reset({});
         }
     }, [defaultValues, reset, defaultUnit]);
 
-    const onSubmit = (data: Partial<Measurement>) => {
+    const onSubmit = (data: Partial<MeasurementPreset>) => {
         // Only include values that are actually filled
         const filledValues: Record<string, number> = {};
         for (const field of allFields) {
@@ -152,72 +124,35 @@ const MeasurementForm = ({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-            {/* Preset selector */}
             <div className={styles.formGroup}>
-                <label className={styles.label}>Apply Preset (Optional)</label>
-                <Controller
-                    name={'__preset' as keyof Partial<Measurement>}
-                    control={control}
-                    render={({ field }) => (
-                        <Select
-                            options={presetOptions}
-                            value={field.value as string}
-                            onChange={(val) => {
-                                field.onChange(val);
-                                applyPresetById(val as string);
-                            }}
-                            placeholder={presetOptions.length ? 'Select a preset to apply' : 'No presets available'}
-                            disabled={isSaving}
-                        />
-                    )}
+                <label htmlFor="name" className={styles.label}>
+                    Preset Name
+                </label>
+                <input
+                    id="name"
+                    type="text"
+                    {...register('name', { required: 'Preset name is required' })}
+                    className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                    placeholder="e.g., Standard Female Gown, Male Agbada"
+                    disabled={isSaving}
                 />
-                <div style={{ marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>
-                    Presets will fill in measurement values but won&apos;t change customer or garment type.
-                </div>
-            </div>
-
-            <div className={styles.formGroup}>
-                <label className={styles.label}>Customer</label>
-                <Controller
-                    name="customerId"
-                    control={control}
-                    rules={{ required: 'Customer is required' }}
-                    render={({ field }) => (
-                        <Select
-                            options={customers}
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Select a customer"
-                            disabled={isSaving}
-                            error={!!errors.customerId}
-                        />
-                    )}
-                />
-                {errors.customerId && (
-                    <p className={styles.errorMessage}>{errors.customerId.message as string}</p>
+                {errors.name && (
+                    <p className={styles.errorMessage}>{errors.name.message as string}</p>
                 )}
             </div>
 
             <div className={styles.formGroup}>
                 <label htmlFor="garmentType" className={styles.label}>
-                    Garment / Style Type
+                    Garment Type (Optional)
                 </label>
                 <input
                     id="garmentType"
                     type="text"
-                    {...register('garmentType', {
-                        required: 'Garment type is required',
-                    })}
-                    className={`${styles.input} ${errors.garmentType ? styles.inputError : ''
-                        }`}
-                    placeholder="e.g., Agbada, Wedding Dress"
+                    {...register('garmentType')}
+                    className={styles.input}
+                    placeholder="e.g., Wedding Gown, Agbada, Kaftan"
                     disabled={isSaving}
                 />
-                {errors.garmentType && (
-                    <p className={styles.errorMessage}>
-                        {errors.garmentType.message as string}
-                    </p>
-                )}
             </div>
 
             <div className={styles.formGroup}>
@@ -254,7 +189,7 @@ const MeasurementForm = ({
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-600)'
                     }}>
-                        💡 <strong>Tip:</strong> You only need to fill in the measurements you want to record. Leave others empty.
+                        💡 <strong>Tip:</strong> You only need to fill in the measurements you want to include in this preset. Leave others empty.
                     </div>
                     {allFields.map(({ name, label }) => (
                         <div className={styles.formGroup} key={name}>
@@ -277,23 +212,21 @@ const MeasurementForm = ({
                 </div>
             )}
 
-            <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                    <label htmlFor="unit" className={styles.label}>
-                        Measurement Unit
-                    </label>
-                    <Controller
-                        name="unit"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                options={unitOptions}
-                                value={field.value}
-                                onChange={(value) => field.onChange(value)}
-                            />
-                        )}
-                    />
-                </div>
+            <div className={styles.formGroup}>
+                <label htmlFor="unit" className={styles.label}>
+                    Measurement Unit
+                </label>
+                <Controller
+                    name="unit"
+                    control={control}
+                    render={({ field }) => (
+                        <Select
+                            options={unitOptions}
+                            value={field.value}
+                            onChange={(value) => field.onChange(value)}
+                        />
+                    )}
+                />
             </div>
 
             <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
@@ -301,11 +234,11 @@ const MeasurementForm = ({
                     Cancel
                 </Button>
                 <Button type="submit" fullWidth disabled={isSaving}>
-                    {isSaving ? 'Saving...' : 'Save Measurement'}
+                    {isSaving ? 'Saving...' : (defaultValues?.id ? 'Update Preset' : 'Create Preset')}
                 </Button>
             </div>
         </form>
     );
 };
 
-export default MeasurementForm; 
+export default PresetForm;
