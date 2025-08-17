@@ -9,6 +9,7 @@ import { Measurement, Customer, Order, Payment } from '@/lib/types';
 import customerStyles from '@/styles/components/customer-detail.module.css';
 import measurementStyles from '@/styles/components/measurement-card.module.css';
 import stylesCardOverlay from '@/styles/components/customer-card.module.css';
+import dashboardStyles from '@/styles/components/dashboard.module.css';
 import { Modal, Button, ActionsMenu } from '@/components/ui';
 import MeasurementForm from '@/components/measurements/MeasurementForm';
 import OrderCard from '@/components/orders/OrderCard';
@@ -527,204 +528,51 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
 
             {/* Customer Statistics */}
             {customerStats && (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: 'var(--space-4)',
-                    marginBottom: 'var(--space-8)'
-                }}>
-                    <div style={{
-                        background: 'linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%)',
-                        border: '1px solid var(--primary-200)',
-                        borderRadius: 'var(--radius-2xl)',
-                        padding: 'var(--space-4)',
-                        boxShadow: 'var(--shadow-md)',
-                        transition: 'all 0.3s ease'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-3)',
-                            marginBottom: 'var(--space-4)'
-                        }}>
-                            <div style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'var(--neutral-0)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--primary-600)',
-                                boxShadow: 'var(--shadow-sm)'
-                            }}>
+                <div className={dashboardStyles.overviewCards} style={{ marginBottom: 'var(--space-8)' }}>
+                    <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.ordersCard}`}>
+                        <div className={dashboardStyles.cardHeader}>
+                            <div className={dashboardStyles.cardIcon}>
                                 <Scissors size={18} />
                             </div>
-                            <span style={{
-                                fontSize: 'var(--text-sm)',
-                                fontWeight: 'var(--font-bold)',
-                                color: 'var(--neutral-700)',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}>
-                                Measurements
-                            </span>
+                            <span className={dashboardStyles.cardTitle}>Measurements</span>
                         </div>
-                        <div style={{
-                            fontSize: 'var(--text-2xl)',
-                            fontWeight: 'var(--font-black)',
-                            color: 'var(--neutral-900)',
-                            lineHeight: 'var(--leading-tight)',
-                            marginBottom: 'var(--space-1)'
-                        }}>
-                            {measurements?.length || 0}
-                        </div>
-                        <div style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-600)',
-                            fontWeight: 'var(--font-medium)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.3px'
-                        }}>
-                            Total Measurements
+                        <div className={dashboardStyles.cardStats}>
+                            <div className={dashboardStyles.statItem}>
+                                <div className={dashboardStyles.statNumber}>{measurements?.length || 0}</div>
+                                <div className={dashboardStyles.statText}>Total Measurements</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style={{
-                        background: 'linear-gradient(135deg, var(--accent-purple) 5%, rgba(139, 92, 246, 0.1) 100%)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
-                        borderRadius: 'var(--radius-2xl)',
-                        padding: 'var(--space-4)',
-                        boxShadow: 'var(--shadow-md)',
-                        transition: 'all 0.3s ease'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-3)',
-                            marginBottom: 'var(--space-4)'
-                        }}>
-                            <div style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'var(--neutral-0)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--accent-purple)',
-                                boxShadow: 'var(--shadow-sm)'
-                            }}>
+                    <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
+                        <div className={dashboardStyles.cardHeader}>
+                            <div className={dashboardStyles.cardIcon}>
                                 <Users size={18} />
                             </div>
-                            <span style={{
-                                fontSize: 'var(--text-sm)',
-                                fontWeight: 'var(--font-bold)',
-                                color: 'var(--neutral-700)',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}>
-                                Orders
-                            </span>
+                            <span className={dashboardStyles.cardTitle}>Orders</span>
                         </div>
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: 'var(--space-4)'
-                        }}>
-                            <div>
-                                <div style={{
-                                    fontSize: 'var(--text-xl)',
-                                    fontWeight: 'var(--font-black)',
-                                    color: 'var(--neutral-900)',
-                                    lineHeight: 'var(--leading-tight)',
-                                    marginBottom: 'var(--space-1)'
-                                }}>
-                                    {customerStats.totalOrders}
-                                </div>
-                                <div style={{
-                                    fontSize: 'var(--text-xs)',
-                                    color: 'var(--neutral-600)',
-                                    fontWeight: 'var(--font-medium)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.3px'
-                                }}>
-                                    Total Orders
-                                </div>
+                        <div className={dashboardStyles.cardStats}>
+                            <div className={dashboardStyles.statItem}>
+                                <div className={dashboardStyles.statNumber}>{customerStats.totalOrders}</div>
+                                <div className={dashboardStyles.statText}>Total Orders</div>
                             </div>
-                            <div>
-                                <div style={{
-                                    fontSize: 'var(--text-xl)',
-                                    fontWeight: 'var(--font-black)',
-                                    color: 'var(--success-600)',
-                                    lineHeight: 'var(--leading-tight)',
-                                    marginBottom: 'var(--space-1)'
-                                }}>
-                                    {customerStats.completedOrders}
-                                </div>
-                                <div style={{
-                                    fontSize: 'var(--text-xs)',
-                                    color: 'var(--neutral-600)',
-                                    fontWeight: 'var(--font-medium)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.3px'
-                                }}>
-                                    Completed
-                                </div>
+                            <div className={dashboardStyles.statItem}>
+                                <div className={dashboardStyles.statNumber}>{customerStats.completedOrders}</div>
+                                <div className={dashboardStyles.statText}>Completed</div>
                             </div>
                         </div>
                     </div>
 
-                    <div style={{
-                        background: 'linear-gradient(135deg, var(--success-50) 0%, var(--success-100) 100%)',
-                        border: '1px solid var(--success-200)',
-                        borderRadius: 'var(--radius-2xl)',
-                        padding: 'var(--space-4)',
-                        boxShadow: 'var(--shadow-md)',
-                        transition: 'all 0.3s ease'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-3)',
-                            marginBottom: 'var(--space-4)'
-                        }}>
-                            <div style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'var(--neutral-0)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--success-600)',
-                                boxShadow: 'var(--shadow-sm)'
-                            }}>
+                    <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.revenueCard}`}>
+                        <div className={dashboardStyles.cardHeader}>
+                            <div className={dashboardStyles.cardIcon}>
                                 <DollarSign size={18} />
                             </div>
-                            <span style={{
-                                fontSize: 'var(--text-sm)',
-                                fontWeight: 'var(--font-bold)',
-                                color: 'var(--neutral-700)',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                            }}>
-                                Payments
-                            </span>
+                            <span className={dashboardStyles.cardTitle}>Payments</span>
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 'var(--space-4)'
-                        }}>
-                            <div>
-                                <div style={{
-                                    fontSize: 'var(--text-lg)',
-                                    fontWeight: 'var(--font-black)',
-                                    color: 'var(--neutral-900)',
-                                    lineHeight: 'var(--leading-tight)',
-                                    marginBottom: 'var(--space-1)'
-                                }}>
+                        <div className={dashboardStyles.cardStats}>
+                            <div className={dashboardStyles.statItem}>
+                                <div className={dashboardStyles.statNumber}>
                                     {new Intl.NumberFormat('en-US', {
                                         style: 'currency',
                                         currency: 'NGN',
@@ -732,23 +580,11 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                                         maximumFractionDigits: 0,
                                     }).format(customerStats.totalPayments)}
                                 </div>
-                                <div style={{
-                                    fontSize: 'var(--text-xs)',
-                                    color: 'var(--neutral-600)',
-                                    fontWeight: 'var(--font-medium)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.3px'
-                                }}>
-                                    Total Paid
-                                </div>
+                                <div className={dashboardStyles.statText}>Total Paid</div>
                             </div>
-                            <div>
-                                <div style={{
-                                    fontSize: 'var(--text-lg)',
-                                    fontWeight: 'var(--font-black)',
-                                    color: customerStats.outstandingAmount > 0 ? 'var(--error-600)' : 'var(--success-600)',
-                                    lineHeight: 'var(--leading-tight)',
-                                    marginBottom: 'var(--space-1)'
+                            <div className={dashboardStyles.statItem}>
+                                <div className={dashboardStyles.statNumber} style={{
+                                    color: customerStats.outstandingAmount > 0 ? 'var(--error-600)' : 'var(--success-600)'
                                 }}>
                                     {new Intl.NumberFormat('en-US', {
                                         style: 'currency',
@@ -757,15 +593,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                                         maximumFractionDigits: 0,
                                     }).format(customerStats.outstandingAmount)}
                                 </div>
-                                <div style={{
-                                    fontSize: 'var(--text-xs)',
-                                    color: 'var(--neutral-600)',
-                                    fontWeight: 'var(--font-medium)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.3px'
-                                }}>
-                                    Outstanding
-                                </div>
+                                <div className={dashboardStyles.statText}>Outstanding</div>
                             </div>
                         </div>
                     </div>

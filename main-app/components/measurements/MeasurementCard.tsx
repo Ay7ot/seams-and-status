@@ -80,7 +80,7 @@ const MeasurementCard = ({
 
             <div className={styles.previewSection}>
                 <div className={styles.previewTitle}>
-                    <span>Measurement Preview</span>
+                    <span>Preview</span>
                     <span className={styles.measurementCount}>
                         {totalMeasurements} measurements
                     </span>

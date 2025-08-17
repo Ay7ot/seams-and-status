@@ -7,8 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { Order, Customer, Payment, Measurement } from '@/lib/types';
 import dashboardStyles from '@/styles/components/dashboard.module.css';
-import { Button } from '@/components/ui';
-import { Plus, Users, Scissors, DollarSign, TrendingUp, Clock, CheckCircle, AlertCircle, Calendar, Settings } from 'react-feather';
+import { Users, Scissors, DollarSign, Clock, CheckCircle, AlertCircle, Settings } from 'react-feather';
 import { formatCurrency } from '@/lib/utils';
 
 const DashboardPage = () => {
@@ -419,7 +418,7 @@ const DashboardPage = () => {
                         <div className={dashboardStyles.statusSection}>
                             <div className={dashboardStyles.sectionTitle}>Order Status</div>
                             <div className={dashboardStyles.statusPills}>
-                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.newStatus}`} onClick={() => router.push('/orders?status=new')}>
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.newStatus}`}>
                                     <div className={dashboardStyles.pillIcon}>
                                         <AlertCircle size={14} />
                                     </div>
@@ -429,34 +428,33 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
 
-                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.progressStatus}`} onClick={() => router.push('/orders?status=in-progress')}>
-                                    <div className={dashboardStyles.pillIcon}>
-                                        <Clock size={14} />
-                                    </div>
-                                    <div className={dashboardStyles.pillContent}>
-                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['In Progress']}</span>
-                                        <span className={dashboardStyles.pillLabel}>In Progress</span>
-                                    </div>
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.progressStatus}`}></div>
+                                <div className={dashboardStyles.pillIcon}>
+                                    <Clock size={14} />
                                 </div>
-
-                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.fittingStatus}`} onClick={() => router.push('/orders?status=fitting')}>
-                                    <div className={dashboardStyles.pillIcon}>
-                                        <Users size={14} />
-                                    </div>
-                                    <div className={dashboardStyles.pillContent}>
-                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['Ready for Fitting']}</span>
-                                        <span className={dashboardStyles.pillLabel}>Fitting</span>
-                                    </div>
+                                <div className={dashboardStyles.pillContent}>
+                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts['In Progress']}</span>
+                                    <span className={dashboardStyles.pillLabel}>In Progress</span>
                                 </div>
+                            </div>
 
-                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.completedStatus}`} onClick={() => router.push('/orders?status=completed')}>
-                                    <div className={dashboardStyles.pillIcon}>
-                                        <CheckCircle size={14} />
-                                    </div>
-                                    <div className={dashboardStyles.pillContent}>
-                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts.Completed}</span>
-                                        <span className={dashboardStyles.pillLabel}>Done</span>
-                                    </div>
+                            <div className={`${dashboardStyles.statusPill} ${dashboardStyles.fittingStatus}`}>
+                                <div className={dashboardStyles.pillIcon}>
+                                    <Users size={14} />
+                                </div>
+                                <div className={dashboardStyles.pillContent}>
+                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts['Ready for Fitting']}</span>
+                                    <span className={dashboardStyles.pillLabel}>Fitting</span>
+                                </div>
+                            </div>
+
+                            <div className={`${dashboardStyles.statusPill} ${dashboardStyles.completedStatus}`}>
+                                <div className={dashboardStyles.pillIcon}>
+                                    <CheckCircle size={14} />
+                                </div>
+                                <div className={dashboardStyles.pillContent}>
+                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts.Completed}</span>
+                                    <span className={dashboardStyles.pillLabel}>Done</span>
                                 </div>
                             </div>
                         </div>
@@ -515,15 +513,7 @@ const DashboardPage = () => {
                                     <span className={dashboardStyles.actionLabel}>Measurements</span>
                                 </button>
 
-                                <button
-                                    className={dashboardStyles.actionButton}
-                                    onClick={() => router.push('/orders')}
-                                >
-                                    <div className={dashboardStyles.actionIcon}>
-                                        <TrendingUp size={20} />
-                                    </div>
-                                    <span className={dashboardStyles.actionLabel}>All Orders</span>
-                                </button>
+
 
                                 <button
                                     className={dashboardStyles.actionButton}
@@ -539,7 +529,6 @@ const DashboardPage = () => {
                     )}
                 </div>
             </div>
-
         </DashboardLayout>
     );
 };
