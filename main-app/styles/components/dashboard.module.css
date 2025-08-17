@@ -423,7 +423,7 @@
 
 .actionButtons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1fr);
   gap: var(--space-3);
 }
 
@@ -691,7 +691,7 @@
   }
 
   .actionButtons {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1fr);
     gap: var(--space-4);
   }
 
@@ -916,7 +916,7 @@
   }
 
   .quickActionsSection .actionButtons {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1fr);
   }
 }
 
