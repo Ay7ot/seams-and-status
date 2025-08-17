@@ -511,8 +511,8 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                     gap: 'var(--space-4)'
                 }}>
                     <div style={{ flex: '1', minWidth: '250px' }}>
-                        <h1 className={customerStyles.customerName}>{customer.name}</h1>
-                        <p className={customerStyles.customerContact}>{customer.contact}</p>
+                    <h1 className={customerStyles.customerName}>{customer.name}</h1>
+                    <p className={customerStyles.customerContact}>{customer.contact}</p>
                     </div>
                     <div style={{
                         display: 'flex',
@@ -613,10 +613,10 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                 {measurementsLoading && (
                     <>
                         <div className={`desktop-only ${measurementStyles.measurementGrid}`}>
-                            {[...Array(2)].map((_, i) => (
-                                <div key={i} className={measurementStyles.skeletonCard} />
-                            ))}
-                        </div>
+                        {[...Array(2)].map((_, i) => (
+                            <div key={i} className={measurementStyles.skeletonCard} />
+                        ))}
+                    </div>
                         <div className={`mobile-only ${customerStyles.mobileList}`}>
                             {[...Array(3)].map((_, i) => (
                                 <div key={i} className={customerStyles.mobileListItem} style={{ height: '88px' }} />
@@ -628,20 +628,20 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                     <>
                         {/* Desktop cards */}
                         <div className={`desktop-only ${measurementStyles.measurementGrid}`}>
-                            {measurements.map((measurement) => (
-                                <MeasurementCard
-                                    key={measurement.id}
-                                    measurement={{
-                                        ...measurement,
-                                        customerName: customer.name,
-                                    }}
-                                    onEdit={handleEdit}
-                                    onCopy={handleCopy}
-                                    onDelete={handleDelete}
-                                    onView={handleView}
-                                />
-                            ))}
-                        </div>
+                        {measurements.map((measurement) => (
+                            <MeasurementCard
+                                key={measurement.id}
+                                measurement={{
+                                    ...measurement,
+                                    customerName: customer.name,
+                                }}
+                                onEdit={handleEdit}
+                                onCopy={handleCopy}
+                                onDelete={handleDelete}
+                                onView={handleView}
+                            />
+                        ))}
+                    </div>
                         {/* Mobile list */}
                         <div className={`mobile-only ${customerStyles.mobileList}`}>
                             {measurements.map((m) => (

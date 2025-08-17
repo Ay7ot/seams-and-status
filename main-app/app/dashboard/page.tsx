@@ -428,33 +428,34 @@ const DashboardPage = () => {
                                     </div>
                                 </div>
 
-                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.progressStatus}`}></div>
-                                <div className={dashboardStyles.pillIcon}>
-                                    <Clock size={14} />
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.progressStatus}`}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <Clock size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['In Progress']}</span>
+                                        <span className={dashboardStyles.pillLabel}>In Progress</span>
+                                    </div>
                                 </div>
-                                <div className={dashboardStyles.pillContent}>
-                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts['In Progress']}</span>
-                                    <span className={dashboardStyles.pillLabel}>In Progress</span>
-                                </div>
-                            </div>
 
-                            <div className={`${dashboardStyles.statusPill} ${dashboardStyles.fittingStatus}`}>
-                                <div className={dashboardStyles.pillIcon}>
-                                    <Users size={14} />
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.fittingStatus}`}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <Users size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts['Ready for Fitting']}</span>
+                                        <span className={dashboardStyles.pillLabel}>Fitting</span>
+                                    </div>
                                 </div>
-                                <div className={dashboardStyles.pillContent}>
-                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts['Ready for Fitting']}</span>
-                                    <span className={dashboardStyles.pillLabel}>Fitting</span>
-                                </div>
-                            </div>
 
-                            <div className={`${dashboardStyles.statusPill} ${dashboardStyles.completedStatus}`}>
-                                <div className={dashboardStyles.pillIcon}>
-                                    <CheckCircle size={14} />
-                                </div>
-                                <div className={dashboardStyles.pillContent}>
-                                    <span className={dashboardStyles.pillNumber}>{stats.statusCounts.Completed}</span>
-                                    <span className={dashboardStyles.pillLabel}>Done</span>
+                                <div className={`${dashboardStyles.statusPill} ${dashboardStyles.completedStatus}`}>
+                                    <div className={dashboardStyles.pillIcon}>
+                                        <CheckCircle size={14} />
+                                    </div>
+                                    <div className={dashboardStyles.pillContent}>
+                                        <span className={dashboardStyles.pillNumber}>{stats.statusCounts.Completed}</span>
+                                        <span className={dashboardStyles.pillLabel}>Done</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
