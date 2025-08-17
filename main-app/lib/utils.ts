@@ -5,12 +5,13 @@
 //     return twMerge(clsx(inputs))
 // } 
 
-export function formatDate(date: { toDate: () => Date }) {
+export function formatDate(date: { toDate: () => Date } | Date) {
+    const dateObj = 'toDate' in date ? date.toDate() : date;
     return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-    }).format(date.toDate());
+    }).format(dateObj);
 }
 
 export function formatCurrency(amount: number, currency: string = 'NGN') {

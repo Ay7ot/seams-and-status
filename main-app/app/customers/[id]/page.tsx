@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 import { useAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/layout';
@@ -39,6 +40,7 @@ interface CustomerDetailPageProps {
 
 const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
     const { user } = useAuth();
+    const router = useRouter();
     const { id } = use(params);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -288,9 +290,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
 
     const handleViewOrder = (orderId: string) => {
         // Navigate to full order page for deep details
-        if (typeof window !== 'undefined') {
-            window.location.href = `/orders/${orderId}`;
-        }
+        router.push(`/orders/${orderId}`);
     };
 
     const openPaymentForOrder = (order: Order) => {
