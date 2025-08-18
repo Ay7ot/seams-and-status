@@ -29,10 +29,27 @@ const PresetCard = ({
 
     // Function to format the measurement keys for display
     const formatLabel = (key: string) => {
-        return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        // Map common field names to more readable labels
+        const fieldLabels: Record<string, string> = {
+            shoulder: 'Shoulder',
+            bust: 'Bust',
+            waist: 'Waist',
+            hip: 'Hip',
+            length: 'Length',
+            underbustLength: 'Underbust Length',
+            underbustWaist: 'Underbust Waist',
+            bustSpan: 'Bust Span',
+            sleeve: 'Sleeve',
+            roundSleeve: 'Round Sleeve',
+            trouserLength: 'Trouser Length',
+            crotchLength: 'Crotch Length',
+            lap: 'Lap/Thigh',
+        };
+
+        return fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
     };
 
-    const unit = preset.unit || 'in';
+
 
     const menuItems = [
         {
@@ -53,9 +70,9 @@ const PresetCard = ({
         },
     ];
 
-    // Get a preview of measurements (first 3)
-    const measurementPreview = Object.entries(preset.values).slice(0, 3);
-    const totalMeasurements = Object.keys(preset.values).length;
+    // Get a preview of selected fields (first 3)
+    const fieldPreview = preset.fields?.slice(0, 3) || [];
+    const totalFields = preset.fields?.length || 0;
 
     return (
         <div className={styles.measurementCard}>
@@ -73,26 +90,22 @@ const PresetCard = ({
 
             <div className={styles.previewSection}>
                 <div className={styles.previewTitle}>
-                    <span>Measurement Preview</span>
+                    <span>Included Fields</span>
                     <span className={styles.measurementCount}>
-                        {totalMeasurements} measurements
+                        {totalFields} fields
                     </span>
                 </div>
                 <div className={styles.previewGrid}>
-                    {measurementPreview.map(([key, value]) => (
-                        <div key={key} className={styles.previewItem}>
+                    {fieldPreview.map((fieldName) => (
+                        <div key={fieldName} className={styles.previewItem}>
                             <span className={styles.previewLabel}>
-                                {formatLabel(key)}
-                            </span>
-                            <span className={styles.previewValue}>
-                                {value}
-                                <span className={styles.unit}>{unit}</span>
+                                {formatLabel(fieldName)}
                             </span>
                         </div>
                     ))}
-                    {totalMeasurements > 3 && (
+                    {totalFields > 3 && (
                         <div className={styles.moreIndicator}>
-                            +{totalMeasurements - 3} more
+                            +{totalFields - 3} more
                         </div>
                     )}
                 </div>

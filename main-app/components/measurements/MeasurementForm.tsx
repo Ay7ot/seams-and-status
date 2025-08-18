@@ -5,7 +5,7 @@ import { Button, Select, SelectOption } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import measurementStyles from '@/styles/components/measurement.module.css';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Measurement, MeasurementPreset, CustomMeasurement } from '@/lib/types';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 
@@ -65,6 +65,7 @@ const MeasurementForm = ({
         control,
         watch,
         reset,
+        setValue,
         formState: { errors },
     } = useForm<Partial<Measurement>>({
         defaultValues: {
@@ -91,8 +92,18 @@ const MeasurementForm = ({
 
     const presetOptions: SelectOption[] = useMemo(() => {
         const filtered = (allPresets || []).filter(p => !selectedGender || p.gender === selectedGender);
-        return filtered.map(p => ({ label: `${p.name} (${p.gender})`, value: p.id }));
+        return filtered.map(p => ({
+            label: `${p.name} - ${p.garmentType || 'General'} (${p.fields?.length || 0} fields)`,
+            value: p.id
+        }));
     }, [allPresets, selectedGender]);
+
+    // Track active preset locally so Select displays correctly and filtering is consistent
+    const [activePresetId, setActivePresetId] = useState<string>('');
+    const selectedPreset = useMemo(
+        () => (allPresets || []).find(p => p.id === activePresetId),
+        [allPresets, activePresetId]
+    );
 
     // Combine standard and custom measurement fields
     const allFields = useMemo(() => {
@@ -103,21 +114,32 @@ const MeasurementForm = ({
             .filter(cm => cm.gender === selectedGender || cm.gender === 'both')
             .map(cm => ({ name: cm.shortForm, label: cm.name }));
 
-        return [...standardFields, ...customFields];
-    }, [selectedGender, customMeasurements]);
+        const allAvailableFields = [...standardFields, ...customFields];
+
+        // If a preset is selected, filter fields to only include those in the preset
+        if (activePresetId) {
+            const allowed = new Set(selectedPreset?.fields || []);
+            return allAvailableFields.filter(field => allowed.has(field.name));
+        }
+
+        return allAvailableFields;
+    }, [selectedGender, customMeasurements, selectedPreset, activePresetId]);
 
     const applyPresetById = (presetId: string | undefined) => {
-        if (!presetId) return;
+        // Do not reset the entire form; just set dependent fields so preset selection remains
+        if (!presetId) {
+            // No preset selected; show all fields for current gender
+            setActivePresetId('');
+            return;
+        }
+
         const preset = allPresets?.find(p => p.id === presetId);
         if (!preset) return;
-        // Apply preset values to form, but keep customer and garment type
-        reset({
-            customerId: defaultValues?.customerId,
-            garmentType: defaultValues?.garmentType,
-            gender: preset.gender,
-            unit: preset.unit,
-            values: preset.values as Record<string, number>,
-        });
+
+        // Align gender and unit to the preset without clearing the preset value
+        if (preset.gender) setValue('gender', preset.gender as any, { shouldValidate: true, shouldDirty: true });
+        if (preset.unit) setValue('unit', preset.unit as any, { shouldValidate: true, shouldDirty: true });
+        setActivePresetId(preset.id);
     };
 
     useEffect(() => {
@@ -155,26 +177,77 @@ const MeasurementForm = ({
             {/* Preset selector */}
             <div className={styles.formGroup}>
                 <label className={styles.label}>Apply Preset (Optional)</label>
-                <Controller
-                    name={'__preset' as keyof Partial<Measurement>}
-                    control={control}
-                    render={({ field }) => (
-                        <Select
-                            options={presetOptions}
-                            value={field.value as string}
-                            onChange={(val) => {
-                                field.onChange(val);
-                                applyPresetById(val as string);
-                            }}
-                            placeholder={presetOptions.length ? 'Select a preset to apply' : 'No presets available'}
-                            disabled={isSaving}
-                        />
-                    )}
+                <Select
+                    options={[
+                        { label: 'No preset - Show all fields', value: '' },
+                        ...presetOptions
+                    ]}
+                    value={activePresetId}
+                    onChange={(val) => {
+                        setActivePresetId(val as string);
+                        applyPresetById(val as string);
+                    }}
+                    placeholder="Select a preset to apply"
+                    disabled={isSaving}
                 />
+                {activePresetId && selectedPreset && (
+                    <div style={{
+                        marginTop: 'var(--space-2)',
+                        padding: 'var(--space-2)',
+                        backgroundColor: 'var(--primary-50)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--primary-700)',
+                        border: '1px solid var(--primary-200)'
+                    }}>
+                        <strong>Selected Preset:</strong> {selectedPreset.name}
+                        {selectedPreset.garmentType && ` - ${selectedPreset.garmentType}`}
+                        <br />
+                        <span style={{ fontSize: 'var(--text-xs)' }}>
+                            Will show {selectedPreset.fields?.length || 0} measurement fields
+                        </span>
+                    </div>
+                )}
                 <div style={{ marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>
-                    Presets will fill in measurement values but won&apos;t change customer or garment type.
+                    Presets will show only the measurement fields you&apos;ve defined for that preset.
                 </div>
             </div>
+
+            {/* Field summary */}
+            {selectedGender && (
+                <div className={styles.formGroup}>
+                    <div style={{
+                        padding: 'var(--space-3)',
+                        backgroundColor: 'var(--neutral-50)',
+                        borderRadius: 'var(--radius-lg)',
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        border: '1px solid var(--neutral-200)'
+                    }}>
+                        <div style={{ fontWeight: 'var(--font-semibold)', marginBottom: 'var(--space-2)' }}>
+                            Available Measurement Fields
+                        </div>
+                        {selectedPreset ? (
+                            <div>
+                                <span style={{ color: 'var(--primary-600)' }}>
+                                    {allFields.length} fields from preset &quot;{selectedPreset.name}&quot;
+                                </span>
+                                <div style={{
+                                    marginTop: 'var(--space-2)',
+                                    fontSize: 'var(--text-xs)',
+                                    color: 'var(--neutral-600)'
+                                }}>
+                                    {allFields.map(field => field.label).join(', ')}
+                                </div>
+                            </div>
+                        ) : (
+                            <span style={{ color: 'var(--neutral-600)' }}>
+                                {allFields.length} total fields available for {selectedGender === 'women' ? 'female' : 'male'} measurements
+                            </span>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <div className={styles.formGroup}>
                 <label className={styles.label}>Customer</label>

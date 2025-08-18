@@ -72,7 +72,7 @@ export interface MeasurementPreset {
     gender: 'men' | 'women';
     unit: 'in' | 'cm';
     garmentType: string;
-    values: { [key: string]: number };
+    fields: string[]; // Array of field names to include in this preset
     createdAt?: { toDate: () => Date };
     updatedAt?: { toDate: () => Date };
 }

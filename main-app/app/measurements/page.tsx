@@ -257,18 +257,18 @@ const MeasurementsPage = () => {
             {loading && (
                 <>
                     <div className={`desktop-only ${styles.measurementGrid}`}>
-                    {[...Array(4)].map((_, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                backgroundColor: 'var(--neutral-0)',
-                                borderRadius: 'var(--radius-xl)',
-                                height: '280px',
-                                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                            }}
-                        />
-                    ))}
-                </div>
+                        {[...Array(4)].map((_, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    backgroundColor: 'var(--neutral-0)',
+                                    borderRadius: 'var(--radius-xl)',
+                                    height: '280px',
+                                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                }}
+                            />
+                        ))}
+                    </div>
                     <div className={`mobile-only ${customerStyles.mobileList}`}>
                         {[...Array(3)].map((_, i) => (
                             <div key={i} className={customerStyles.mobileListItem} style={{ height: '88px' }} />
@@ -361,7 +361,7 @@ const MeasurementsPage = () => {
                                             <span className={customerStyles.mobileMetaKey}>Unit:</span> {preset.unit}
                                         </div>
                                         <div style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
-                                            <span className={customerStyles.mobileMetaKey}>Fields:</span> {Object.keys(preset.values).length}
+                                            <span className={customerStyles.mobileMetaKey}>Fields:</span> {preset.fields?.length || 0}
                                         </div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -444,7 +444,7 @@ const MeasurementsPage = () => {
                                 </div>
                             ))
                         )}
-                </div>
+                    </div>
                 </>
             )}
 
@@ -523,10 +523,10 @@ const MeasurementsPage = () => {
                 ) : (
                     <CustomMeasurementForm
                         onSave={handleSaveCustomMeasurement}
-                    onClose={handleCloseModal}
-                    isSaving={isSaving}
+                        onClose={handleCloseModal}
+                        isSaving={isSaving}
                         defaultValues={editingCustomMeasurement || undefined}
-                />
+                    />
                 )}
             </Modal>
 

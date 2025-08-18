@@ -5,7 +5,7 @@ import { Button, Select, SelectOption } from '@/components/ui';
 import styles from '@/styles/components/auth.module.css';
 import measurementStyles from '@/styles/components/measurement.module.css';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MeasurementPreset, CustomMeasurement } from '@/lib/types';
 import { useFirestoreQuery } from '@/hooks/useFirestoreQuery';
 
@@ -73,6 +73,9 @@ const PresetForm = ({
 
     const selectedGender = watch('gender');
 
+    // Local selection state for fields
+    const [selectedFields, setSelectedFields] = useState<string[]>(defaultValues?.fields || []);
+
     // Load custom measurements for the user
     const { data: customMeasurements } = useFirestoreQuery<CustomMeasurement>({
         path: 'customMeasurements',
@@ -99,27 +102,30 @@ const PresetForm = ({
                 gender: defaultValues.gender,
                 unit: defaultValues.unit || defaultUnit,
                 garmentType: defaultValues.garmentType,
-                ...defaultValues.values,
             });
+            setSelectedFields(defaultValues.fields || []);
         } else {
             reset({});
+            setSelectedFields([]);
         }
     }, [defaultValues, reset, defaultUnit]);
 
     const onSubmit = (data: Partial<MeasurementPreset>) => {
-        // Only include values that are actually filled
-        const filledValues: Record<string, number> = {};
-        for (const field of allFields) {
-            const value = (watch(`values.${field.name}` as const) as unknown) as number | undefined;
-            if (typeof value === 'number' && !Number.isNaN(value)) {
-                filledValues[field.name] = value;
-            }
-        }
+        // Persist only fields that are in the current available list
+        const allowed = new Set(allFields.map(f => f.name));
+        const fields = selectedFields.filter(name => allowed.has(name));
 
         onSave({
             ...data,
-            values: filledValues,
+            fields,
         });
+    };
+
+    const toggleField = (name: string) => {
+        if (isSaving) return;
+        setSelectedFields(prev =>
+            prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+        );
     };
 
     return (
@@ -189,26 +195,45 @@ const PresetForm = ({
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-600)'
                     }}>
-                        💡 <strong>Tip:</strong> You only need to fill in the measurements you want to include in this preset. Leave others empty.
+                        💡 <strong>Tip:</strong> Tap the cards to select which fields belong to this preset.
                     </div>
-                    {allFields.map(({ name, label }) => (
-                        <div className={styles.formGroup} key={name}>
-                            <label htmlFor={name} className={styles.label}>
-                                {label}
-                            </label>
-                            <input
-                                id={name}
-                                type="number"
-                                step="0.01"
-                                {...register(`values.${name}` as const, {
-                                    valueAsNumber: true,
-                                })}
-                                className={styles.input}
-                                placeholder="Optional"
+                    {allFields.map(({ name, label }) => {
+                        const isSelected = selectedFields.includes(name);
+                        return (
+                            <button
+                                type="button"
+                                key={name}
+                                onClick={() => toggleField(name)}
                                 disabled={isSaving}
-                            />
-                        </div>
-                    ))}
+                                style={{
+                                    textAlign: 'left',
+                                    backgroundColor: isSelected ? 'var(--primary-50)' : 'var(--neutral-0)',
+                                    border: `1px solid ${isSelected ? 'var(--primary-500)' : 'var(--neutral-200)'}`,
+                                    color: 'var(--neutral-900)',
+                                    borderRadius: 'var(--radius-lg)',
+                                    padding: 'var(--space-3)',
+                                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 'var(--space-3)'
+                                }}
+                            >
+                                <span style={{ fontWeight: 'var(--font-medium)' }}>{label}</span>
+                                {isSelected && (
+                                    <span style={{
+                                        backgroundColor: 'var(--primary-600)',
+                                        color: 'var(--neutral-0)',
+                                        borderRadius: 'var(--radius-full)',
+                                        fontSize: 'var(--text-xs)',
+                                        padding: '0.125rem 0.5rem'
+                                    }}>
+                                        Selected
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
 
