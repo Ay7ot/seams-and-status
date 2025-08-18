@@ -137,8 +137,8 @@ const MeasurementForm = ({
         if (!preset) return;
 
         // Align gender and unit to the preset without clearing the preset value
-        if (preset.gender) setValue('gender', preset.gender as any, { shouldValidate: true, shouldDirty: true });
-        if (preset.unit) setValue('unit', preset.unit as any, { shouldValidate: true, shouldDirty: true });
+        if (preset.gender) setValue('gender', preset.gender as 'men' | 'women', { shouldValidate: true, shouldDirty: true });
+        if (preset.unit) setValue('unit', preset.unit as 'in' | 'cm', { shouldValidate: true, shouldDirty: true });
         setActivePresetId(preset.id);
     };
 
