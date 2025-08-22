@@ -82,7 +82,8 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
     const orderStats = useMemo(() => {
         if (!order) return null;
 
-        const totalCost = order.totalCost || order.materialCost || 0;
+        const materialCost = order.materialCost || 0;
+        const totalCost = order.totalCost || materialCost;
         const paymentCount = payments?.length || 0;
         const daysSinceCreated = order.createdAt ?
             Math.floor((Date.now() - order.createdAt.toDate().getTime()) / (1000 * 60 * 60 * 24)) : 0;
@@ -94,6 +95,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
             paymentCount,
             daysSinceCreated,
             isOverdue: balance > 0 && daysSinceCreated > 30,
+            profit: totalCost - materialCost,
         };
     }, [order, payments, totalPaid, balance]);
 
@@ -350,6 +352,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                                     </div>
                                     <div className={dashboardStyles.statText}>Total Paid</div>
                                 </div>
+
                             </div>
                         </div>
 
@@ -371,26 +374,29 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                                     <div className={dashboardStyles.statNumber}>{orderStats.paymentCount}</div>
                                     <div className={dashboardStyles.statText}>Payments Made</div>
                                 </div>
+
                             </div>
                         </div>
 
                         <div className={`${dashboardStyles.overviewCard} ${dashboardStyles.customersCard}`}>
                             <div className={dashboardStyles.cardHeader}>
                                 <div className={dashboardStyles.cardIcon}>
-                                    <Calendar size={18} />
+                                    <DollarSign size={18} />
                                 </div>
-                                <span className={dashboardStyles.cardTitle}>Timeline</span>
+                                <span className={dashboardStyles.cardTitle}>Pricing</span>
                             </div>
                             <div className={dashboardStyles.cardStats} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                                 <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>{orderStats.daysSinceCreated}</div>
-                                    <div className={dashboardStyles.statText}>Days Since Created</div>
+                                    <div className={dashboardStyles.statNumber}>
+                                        {formatCurrency(order.materialCost || 0, userCurrency)}
+                                    </div>
+                                    <div className={dashboardStyles.statText}>Material Cost</div>
                                 </div>
                                 <div className={dashboardStyles.statItem}>
-                                    <div className={dashboardStyles.statNumber}>
-                                        {order.fittingDate ? formatDate(order.fittingDate) : 'Not set'}
+                                    <div className={dashboardStyles.statNumber} style={{ color: 'var(--success-700)' }}>
+                                        {formatCurrency(orderStats.profit, userCurrency)}
                                     </div>
-                                    <div className={dashboardStyles.statText}>Fitting Date</div>
+                                    <div className={dashboardStyles.statText}>Profit</div>
                                 </div>
                             </div>
                         </div>
@@ -444,6 +450,10 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                                 <span className={styles.detailValue}>{order.style}</span>
                             </div>
                             <div className={styles.detailItem}>
+                                <span className={styles.detailLabel}>Material Cost</span>
+                                <span className={styles.detailValue}>{formatCurrency(order.materialCost, userCurrency)}</span>
+                            </div>
+                            <div className={styles.detailItem}>
                                 <span className={styles.detailLabel}>Arrival Date</span>
                                 <span className={styles.detailValue}>{formatDate(order.arrivalDate)}</span>
                             </div>
@@ -454,7 +464,7 @@ const OrderDetailPage = ({ params }: OrderDetailPageProps) => {
                                 </span>
                             </div>
                             <div className={styles.detailItem}>
-                                <span className={styles.detailLabel}>Collected Date</span>
+                                <span className={styles.detailLabel}>Collection Date</span>
                                 <span className={styles.detailValue}>
                                     {order.collectionDate ? formatDate(order.collectionDate) : 'Not collected'}
                                 </span>
