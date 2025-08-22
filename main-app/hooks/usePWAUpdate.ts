@@ -8,12 +8,13 @@ import { useEffect } from 'react';
 
 export const usePWAUpdate = () => {
     useEffect(() => {
-        if (process.env.NODE_ENV === 'development') return; // Skip in dev
         if (!('serviceWorker' in navigator)) return;
 
         const registerSW = async () => {
             try {
+                console.log('Registering service worker...');
                 const reg = await navigator.serviceWorker.register('/sw.js');
+                console.log('Service worker registered successfully:', reg);
 
                 // Check right away for an update
                 if (reg.waiting) {
@@ -55,6 +56,7 @@ export const usePWAUpdate = () => {
             }
         };
 
+        // Register immediately
         registerSW();
     }, []);
 };
