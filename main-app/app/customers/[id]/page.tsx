@@ -512,7 +512,7 @@ const CustomerDetailPage = ({ params }: CustomerDetailPageProps) => {
                 }}>
                     <div style={{ flex: '1', minWidth: '250px' }}>
                         <h1 className={customerStyles.customerName}>{customer.name}</h1>
-                        <p className={customerStyles.customerContact}>{customer.contact}</p>
+                        <p className={customerStyles.customerContact}>{customer.contact || 'N/A'}</p>
                     </div>
                     <div style={{
                         display: 'flex',

@@ -10,7 +10,7 @@ import { Customer } from '@/lib/types';
 
 export interface CustomerFormData {
     name: string;
-    contact: string;
+    contact?: string;
     gender: 'female' | 'male' | 'other';
 }
 
@@ -87,7 +87,7 @@ const CustomerForm = ({
                 <input
                     id="contact"
                     type="tel"
-                    {...register('contact', { required: 'Contact number is required' })}
+                    {...register('contact')}
                     className={`${styles.input} ${errors.contact ? styles.inputError : ''}`}
                     placeholder="e.g., 08012345678"
                     disabled={isSaving}

@@ -4,7 +4,7 @@ export interface Customer {
     id: string;
     userId: string;
     name: string;
-    contact: string;
+    contact?: string;
     gender: 'female' | 'male' | 'other';
     createdAt?: { toDate: () => Date };
 }

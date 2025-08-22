@@ -45,11 +45,15 @@ const CustomersPage = () => {
 
     const filteredCustomers = useMemo(() => {
         if (!customers) return [];
-        return customers.filter(
-            (customer) =>
-                customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                customer.contact.includes(searchTerm)
-        );
+        return customers.filter((customer) => {
+            const matchesName = customer.name
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
+            const matchesContact = (customer.contact || '')
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
+            return matchesName || matchesContact;
+        });
     }, [customers, searchTerm]);
 
 
@@ -207,7 +211,7 @@ const CustomersPage = () => {
                                 <div className={customerStyles.mobileItemHeader}>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <h3 className={customerStyles.mobileItemTitle}>{customer.name}</h3>
-                                        <div className={customerStyles.mobileItemSubtitle}>{customer.contact}</div>
+                                        <div className={customerStyles.mobileItemSubtitle}>{customer.contact || 'N/A'}</div>
                                     </div>
                                     <span style={{
                                         background: customer.gender === 'female'

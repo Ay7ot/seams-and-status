@@ -47,7 +47,7 @@ const CustomerCard = ({ customer, onView }: CustomerCardProps) => {
                 </div>
                 <div className={styles.customerInfo}>
                     <h3 className={styles.customerName}>{customer.name}</h3>
-                    <p className={styles.customerContact}>{customer.contact}</p>
+                    <p className={styles.customerContact}>{customer.contact || 'N/A'}</p>
                 </div>
             </div>
             <div className={styles.cardBody}>
